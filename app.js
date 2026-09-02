@@ -11,6 +11,30 @@ const bookings = {
   'learn-to-fly': { title: 'Learn To Fly Melbourne', label: '官方咨询 / 预约', note: '体验飞行与天气条款', url: 'https://learntofly.edu.au/contact/' }
 };
 
+const spotMeta = {
+  'city-arrival': ['main', '城市漫步', '地标与河岸'], 'st-patricks': ['optional', '景点', '哥特建筑'], qvm: ['main', '市场', '本地食材'], hosier: ['main', '景点', '街头艺术'], 'gardens-ngv': ['main', '景点群', '园林与艺术'], fitzroy: ['optional', '街区', '咖啡与小店'],
+  yarravalley: ['main', '行程节点', '山谷与葡萄园'], healesville: ['main', '景点', '本土动物'], balloon: ['optional', '体验', '日出飞行'], 'tidal-river': ['main', '景点', '河口与野生动物'], squeaky: ['main', '景点', '石英白沙'], lilly: ['optional', '景点', '温带雨林'], bigdrift: ['main', '景点', '沙丘日落'],
+  tonguepoint: ['optional', '徒步', '海岬远眺'], nobbies: ['main', '景点', '海豹与海鸟'], penguin: ['main', '体验', '小蓝企鹅'], woolamai: ['optional', '景点', '海岸徒步'], 'hot-springs': ['main', '体验', '地热泡池'],
+  pointnepean: ['optional', '景点', '海岬遗址'], ferry: ['main', '交通', '跨湾渡轮'], surfcoast: ['optional', '景点群', '冲浪海岸'], splitpoint: ['main', '景点群', '灯塔与大洋路'], erskine: ['optional', '景点', '雨林瀑布'], kennett: ['optional', '景点', '野生考拉'], maits: ['main', '景点', '巨型蕨类'],
+  gibson: ['optional', '景点', '近海崖壁'], apostles: ['main', '景点', '海蚀岩柱'], lochard: ['main', '景点', '峡谷海湾'], londonbridge: ['optional', '景点', '坍塌海拱'], bayislands: ['main', '景点', '海岸岩柱'], 'learn-to-fly': ['main', '体验', '亲手操控飞机'], 'ngv-library': ['optional', '景点群', '艺术与人文'], departure: ['main', '行程节点', '返程留白']
+};
+
+const englishNames = {
+  'city-arrival': 'Federation Square / Yarra River / Flinders Street Station', 'gardens-ngv': 'Royal Botanic Gardens Victoria / NGV / ACMI', 'tidal-river': 'Tidal River / Norman Beach', squeaky: 'Squeaky Beach / Whisky Bay / Picnic Bay', lilly: 'Lilly Pilly Gully / Wildlife Walk',
+  tonguepoint: 'Mount Bishop / Darby to Tongue Point', nobbies: 'The Nobbies / Seal Rocks', woolamai: 'Cape Woolamai / Churchill Island', pointnepean: 'Point Nepean / Sorrento', surfcoast: 'Barwon Heads / Bells Beach / Torquay', splitpoint: 'Split Point Lighthouse / Memorial Arch / Lorne',
+  maits: "Maits Rest / Cape Otway Lightstation", londonbridge: 'London Bridge / The Grotto', bayislands: 'Bay of Martyrs / Bay of Islands', 'ngv-library': 'NGV / State Library of Victoria'
+};
+
+const stayInfo = [
+  '住宿：墨尔本市中心（Melbourne CBD，酒店区域，步行与免费电车便利）', '住宿：墨尔本市中心（Melbourne CBD，酒店区域，步行与免费电车便利）', '住宿：亚拉谷（Yarra Valley，酒店区域，葡萄园与山谷）', '住宿：潮汐河（Tidal River，营地/住宿区）优先；或亚纳基（Yanakie，住宿区）',
+  '住宿：潮汐河（Tidal River，营地/住宿区），连续住两晚不换房', '住宿：考斯（Cowes，住宿区）或纽黑文（Newhaven，住宿区）', '住宿：索伦托（Sorrento）、赖伊（Rye）或芬戈尔（Fingal），均为住宿区域', '住宿：洛恩（Lorne，海滨住宿区）优先；或托基（Torquay）/ 艾里斯湾（Aireys Inlet）',
+  '住宿：阿波罗湾（Apollo Bay，海滨住宿区）', '住宿：坎贝尔港（Port Campbell，海滨住宿区）', '住宿：墨尔本（Melbourne，酒店区域）', '住宿：墨尔本（Melbourne，酒店区域）；视航班考虑机场附近', '住宿：不安排，返程日'
+];
+
+const dayPace = [
+  '到达日：只保留主线，按精力决定备选。', '节奏舒缓：备选可按天气与体力取舍。', '转场日：先保证取车和保护区闭园前到达。', '紧凑日：热气球取消不补项目，午后专注转场。', '舒缓日：海湾间灵活取舍，日落前为大沙丘留体力。', '紧凑日：上午徒步二选一，傍晚企鹅归巢不可压缩。', '转场日：伍拉迈角 / 丘吉尔岛二选一，温泉为主线。', '紧凑日：先锁定轮渡班次，沿海停靠只选最想看的。', '节奏适中：Maits Rest 为主线，Cape Otway 只在条件合适时加入。', '紧凑日：吉布森台阶受海况影响，十二门徒与峡谷优先。', '紧凑日：西段海岸只保留最想看的 1—2 个点，预留内陆返城。', '缓冲日：飞行体验之外的人文场馆均为备选。', '返程日：不再安排景点。'
+];
+
 const days = [
   { date: '2026-09-24', label: 'D1', dateText: '09.24 · 周四', title: '抵达墨尔本', route: '不租车 · 市中心轻量步行 · 住 Melbourne CBD', places: [
     place('city-arrival', '墨尔本城市地标散步', 'Melbourne City Walk', '把第一天留给调时差：联邦广场、雅拉河和弗林德斯街车站可随体力任意串联。无需追求打卡数量，找到节奏即可。', '联邦广场 → 雅拉河河岸 → 弗林德斯街车站；若到得晚，仅选一段河岸步行。', 'Melbourne CBD；各点都在免费电车区或步行范围。', '咖啡与轻食优先；到达日不预设餐厅，按落地时间决定。', '城市地标、河岸与百年车站', '抵达日不租车；天气或疲劳时把行程压缩为一小段散步。', 'Flinders_Street_railway_station', 'https://www.visitmelbourne.com/'),
@@ -74,7 +98,8 @@ const days = [
 ];
 
 function place(id, name, en, intro, guide, location, food, feature, caution, wiki, source) {
-  return { id, name, en, intro, guide, location, food, feature, caution, wiki, source, image: `assets/${id}.jpg`, booking: bookings[id] || null };
+  const [role, category, highlight] = spotMeta[id] || ['main', '景点', '行程亮点'];
+  return { id, name, en, displayEn: englishNames[id] || en, intro, guide, location, food, feature, caution, wiki, source, role, category, highlight, image: `assets/${id}.jpg`, booking: bookings[id] || null };
 }
 
 const routeNodes = [
@@ -134,10 +159,12 @@ function buildNav() {
 }
 
 function imageCard(item, index) {
-  return `<article class="place-card" id="spot-${item.id}">
+  const isOptional = item.role === 'optional';
+  const roleLabel = isOptional ? '备选 · 时间充足再去' : '主线 · 优先保留';
+  return `<article class="place-card ${isOptional ? 'is-optional' : 'is-main'}" id="spot-${item.id}">
     <div class="place-photo"><img data-wiki="${encodeURIComponent(item.wiki)}" alt="${escapeHtml(item.name)} 的实景图" loading="${index === 0 ? 'eager' : 'lazy'}"><div class="image-placeholder">${escapeHtml(item.name)}<small>图片加载中…</small></div><span class="photo-note">实景图：<a href="https://en.wikipedia.org/wiki/${encodeURIComponent(item.wiki)}" target="_blank" rel="noopener">Wikimedia Commons / Wikipedia ↗</a></span></div>
     <div class="place-info">
-      <span class="english">${item.en}</span><h3>${item.name}</h3><p class="place-intro">${item.intro}</p>
+      <span class="route-badge ${isOptional ? 'badge-optional' : 'badge-main'}">${roleLabel}</span><span class="english">${item.displayEn}</span><h3>${item.name}（${item.displayEn}，${item.category}，${item.highlight}）</h3><p class="place-intro">${item.intro}</p>
       <dl class="facts">
         <div class="fact"><dt>基础导览</dt><dd>${item.guide}</dd></div>
         <div class="fact"><dt>地理位置</dt><dd>${item.location}</dd></div>
@@ -156,7 +183,7 @@ function renderDay(index, spotId = null, moveFocus = false) {
   const day = days[activeDayIndex];
   document.querySelectorAll('.day-nav-button').forEach(button => button.classList.toggle('active-day', Number(button.dataset.day) === activeDayIndex));
   document.querySelectorAll('.spot-nav').forEach(button => button.classList.toggle('active', Number(button.dataset.day) === activeDayIndex));
-  placeHeading.innerHTML = `<div class="date-lockup"><span>${day.label}</span><strong>${day.dateText.split(' · ')[0].replace('.', '<i>/</i>')}</strong><small>${day.dateText.split(' · ')[1]}</small></div><div><span class="day-kicker">DAY PLAN · ${day.date}</span><h2>${day.title}</h2></div><p class="route-context">${day.route}</p>`;
+  placeHeading.innerHTML = `<div class="date-lockup"><span>${day.label}</span><strong>${day.dateText.split(' · ')[0].replace('.', '<i>/</i>')}</strong><small>${day.dateText.split(' · ')[1]}</small></div><div><span class="day-kicker">DAY PLAN · ${day.date}</span><h2>${day.title}</h2></div><p class="route-context"><b>${dayPace[activeDayIndex]}</b>${day.route}<span class="stay-info">${stayInfo[activeDayIndex]}</span></p>`;
   placeCards.innerHTML = day.places.map(imageCard).join('');
   placeCards.querySelectorAll('img[data-wiki]').forEach(image => imageObserver ? imageObserver.observe(image) : loadWikimediaImage(image));
   const previous = days[activeDayIndex - 1];
