@@ -74,48 +74,68 @@ const days = [
 ];
 
 function place(id, name, en, intro, guide, location, food, feature, caution, wiki, source) {
-  return { id, name, en, intro, guide, location, food, feature, caution, wiki, source, booking: bookings[id] || null };
+  return { id, name, en, intro, guide, location, food, feature, caution, wiki, source, image: `assets/${id}.jpg`, booking: bookings[id] || null };
 }
+
+const routeNodes = [
+  { day: 0, name: '墨尔本', lat: -37.8136, lng: 144.9631 },
+  { day: 1, name: '墨尔本市区', lat: -37.8222, lng: 144.9768 },
+  { day: 2, name: '希尔斯维尔', lat: -37.6530, lng: 145.5170 },
+  { day: 3, name: '潮汐河', lat: -39.0308, lng: 146.3235 },
+  { day: 4, name: '吱吱海滩', lat: -39.0265, lng: 146.3065 },
+  { day: 4, name: '大沙丘', lat: -38.9940, lng: 146.2790 },
+  { day: 5, name: '菲利普岛', lat: -38.5115, lng: 145.1520 },
+  { day: 6, name: '伍拉迈角', lat: -38.5465, lng: 145.3340 },
+  { day: 6, name: '半岛温泉', lat: -38.3725, lng: 144.8780 },
+  { day: 7, name: '索伦托', lat: -38.3394, lng: 144.7412 },
+  { day: 7, name: '昆斯克利夫', lat: -38.2680, lng: 144.6620 },
+  { day: 7, name: '托基', lat: -38.3305, lng: 144.3260 },
+  { day: 7, name: '洛恩', lat: -38.5400, lng: 143.9750 },
+  { day: 8, name: '肯尼特河', lat: -38.6660, lng: 143.9190 },
+  { day: 8, name: '阿波罗湾', lat: -38.7590, lng: 143.6710 },
+  { day: 9, name: '十二门徒', lat: -38.6650, lng: 143.1050 },
+  { day: 9, name: '坎贝尔港', lat: -38.6180, lng: 142.9990 },
+  { day: 10, name: '群岛湾', lat: -38.6670, lng: 142.8850 },
+  { day: 11, name: 'Moorabbin', lat: -37.9750, lng: 145.1020 },
+  { day: 12, name: '墨尔本机场', lat: -37.6690, lng: 144.8410 }
+];
 
 const nav = document.querySelector('#itinerary-nav');
 const placeHeading = document.querySelector('#place-heading');
-const placeCard = document.querySelector('#place-card');
+const placeCards = document.querySelector('#place-cards');
+const dayPagination = document.querySelector('#day-pagination');
 const menuButton = document.querySelector('#menu-button');
 const sidebar = document.querySelector('.sidebar');
-let activeId = '';
+let activeDayIndex = 0;
+let map;
+let mapMarkers = [];
+const imageObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
+  entries.filter(entry => entry.isIntersecting).forEach(entry => {
+    imageObserver.unobserve(entry.target);
+    loadWikimediaImage(entry.target);
+  });
+}, { rootMargin: '240px 0px' }) : null;
 
 function buildNav() {
   nav.innerHTML = days.map(day => `
     <section class="day-nav">
-      <button class="day-nav-button" type="button" data-place="${day.places[0].id}">
+      <button class="day-nav-button" type="button" data-day="${days.indexOf(day)}">
         <span class="day-number">${day.label}</span><span><strong>${day.title}</strong><small>${day.dateText}</small></span>
       </button>
-      ${day.places.map(item => `<button class="spot-nav" type="button" data-place="${item.id}">${item.name}</button>`).join('')}
+      ${day.places.map(item => `<button class="spot-nav" type="button" data-day="${days.indexOf(day)}" data-spot="${item.id}">${item.name}</button>`).join('')}
     </section>`).join('');
   nav.addEventListener('click', event => {
-    const button = event.target.closest('[data-place]');
+    const button = event.target.closest('[data-day]');
     if (!button) return;
-    renderPlace(button.dataset.place, true);
+    renderDay(Number(button.dataset.day), button.dataset.spot || null, true);
     sidebar.classList.remove('is-open');
     menuButton?.setAttribute('aria-expanded', 'false');
   });
 }
 
-function findPlace(id) {
-  for (const day of days) {
-    const item = day.places.find(candidate => candidate.id === id);
-    if (item) return { day, item };
-  }
-  return { day: days[0], item: days[0].places[0] };
-}
-
-function renderPlace(id, moveFocus = false) {
-  const { day, item } = findPlace(id);
-  activeId = item.id;
-  document.querySelectorAll('.spot-nav').forEach(button => button.classList.toggle('active', button.dataset.place === item.id));
-  placeHeading.innerHTML = `<div><span class="day-kicker">${day.label} · ${day.dateText}</span><h2>${day.title}</h2></div><p class="route-context">${day.route}</p>`;
-  placeCard.innerHTML = `
-    <div class="place-photo" id="place-photo"><div class="image-placeholder">正在调取实景图…</div></div>
+function imageCard(item, index) {
+  return `<article class="place-card" id="spot-${item.id}">
+    <div class="place-photo"><img data-wiki="${encodeURIComponent(item.wiki)}" alt="${escapeHtml(item.name)} 的实景图" loading="${index === 0 ? 'eager' : 'lazy'}"><div class="image-placeholder">${escapeHtml(item.name)}<small>图片加载中…</small></div><span class="photo-note">实景图：<a href="https://en.wikipedia.org/wiki/${encodeURIComponent(item.wiki)}" target="_blank" rel="noopener">Wikimedia Commons / Wikipedia ↗</a></span></div>
     <div class="place-info">
       <span class="english">${item.en}</span><h3>${item.name}</h3><p class="place-intro">${item.intro}</p>
       <dl class="facts">
@@ -126,40 +146,81 @@ function renderPlace(id, moveFocus = false) {
         <div class="fact"><dt>提醒</dt><dd>${item.caution}</dd></div>
         ${item.booking ? `<div class="fact"><dt>官方预约</dt><dd><a href="${item.booking.url}" target="_blank" rel="noopener">${item.booking.title} · ${item.booking.note} ↗</a></dd></div>` : ''}
       </dl>
-      <div class="place-links">${item.booking ? `<a href="${item.booking.url}" target="_blank" rel="noopener">前往官方预约 ↗</a>` : ''}<a href="${item.source}" target="_blank" rel="noopener">官方 / 资料来源 ↗</a><a href="https://en.wikipedia.org/wiki/${encodeURIComponent(item.wiki)}" target="_blank" rel="noopener">查看图片出处 ↗</a></div>
-    </div>`;
-  localStorage.setItem('victoria-loop-current-place', item.id);
-  loadWikipediaImage(item);
-  if (moveFocus) document.querySelector('#place-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      <div class="place-links">${item.booking ? `<a href="${item.booking.url}" target="_blank" rel="noopener">前往官方预约 ↗</a>` : ''}<a href="${item.source}" target="_blank" rel="noopener">官方 / 资料来源 ↗</a><a href="https://en.wikipedia.org/wiki/${encodeURIComponent(item.wiki)}" target="_blank" rel="noopener">图片出处 ↗</a></div>
+    </div>
+  </article>`;
 }
 
-async function loadWikipediaImage(item) {
-  const holder = document.querySelector('#place-photo');
-  if (!holder) return;
-  const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(item.wiki)}`;
+function renderDay(index, spotId = null, moveFocus = false) {
+  activeDayIndex = Math.max(0, Math.min(index, days.length - 1));
+  const day = days[activeDayIndex];
+  document.querySelectorAll('.day-nav-button').forEach(button => button.classList.toggle('active-day', Number(button.dataset.day) === activeDayIndex));
+  document.querySelectorAll('.spot-nav').forEach(button => button.classList.toggle('active', Number(button.dataset.day) === activeDayIndex));
+  placeHeading.innerHTML = `<div class="date-lockup"><span>${day.label}</span><strong>${day.dateText.split(' · ')[0].replace('.', '<i>/</i>')}</strong><small>${day.dateText.split(' · ')[1]}</small></div><div><span class="day-kicker">DAY PLAN · ${day.date}</span><h2>${day.title}</h2></div><p class="route-context">${day.route}</p>`;
+  placeCards.innerHTML = day.places.map(imageCard).join('');
+  placeCards.querySelectorAll('img[data-wiki]').forEach(image => imageObserver ? imageObserver.observe(image) : loadWikimediaImage(image));
+  const previous = days[activeDayIndex - 1];
+  const next = days[activeDayIndex + 1];
+  dayPagination.innerHTML = `${previous ? `<button type="button" data-day="${activeDayIndex - 1}"><small>← 前一日</small><strong>${previous.label} · ${previous.title}</strong></button>` : '<span></span>'}<span class="pagination-count">${String(activeDayIndex + 1).padStart(2, '0')} / ${String(days.length).padStart(2, '0')}</span>${next ? `<button type="button" data-day="${activeDayIndex + 1}"><small>后一日 →</small><strong>${next.label} · ${next.title}</strong></button>` : '<span></span>'}`;
+  dayPagination.querySelectorAll('button').forEach(button => button.addEventListener('click', () => renderDay(Number(button.dataset.day), null, true)));
+  localStorage.setItem('victoria-loop-current-day', String(activeDayIndex));
+  updateMap();
+  if (spotId) requestAnimationFrame(() => document.querySelector(`#spot-${spotId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  else if (moveFocus) document.querySelector('#place-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function initMap() {
+  if (!window.L) return;
+  map = L.map('route-map', { zoomControl: false, scrollWheelZoom: false, attributionControl: true });
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, subdomains: 'abcd', attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
+  L.polyline(routeNodes.map(node => [node.lat, node.lng]), { color: '#d47856', weight: 4, opacity: .9, lineJoin: 'round' }).addTo(map);
+  map.fitBounds(L.latLngBounds(routeNodes.map(node => [node.lat, node.lng])).pad(.12));
+  updateMap();
+}
+
+function updateMap() {
+  if (!map) return;
+  mapMarkers.forEach(marker => marker.remove());
+  mapMarkers = routeNodes.map(node => {
+    const active = node.day === activeDayIndex;
+    const icon = L.divIcon({ className: 'route-marker-wrap', html: `<button class="route-marker ${active ? 'route-marker-active' : ''}" aria-label="${node.name}"><span>${node.name}</span></button>`, iconSize: active ? [138, 38] : [105, 28], iconAnchor: active ? [15, 19] : [10, 14] });
+    const marker = L.marker([node.lat, node.lng], { icon, keyboard: false }).addTo(map);
+    marker.on('click', () => renderDay(node.day, null, true));
+    return marker;
+  });
+}
+
+async function loadWikimediaImage(image) {
+  if (image.dataset.fallbackAttempted) return;
+  image.dataset.fallbackAttempted = 'true';
   try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('No image');
-    const data = await response.json();
-    const image = data.originalimage?.source || data.thumbnail?.source;
-    if (!image) throw new Error('No image');
-    holder.innerHTML = `<img src="${image}" alt="${escapeHtml(item.name)} 的实景图" referrerpolicy="no-referrer"><span class="photo-note">实景图：<a href="${data.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${encodeURIComponent(item.wiki)}`}" target="_blank" rel="noopener">Wikipedia / Wikimedia Commons ↗</a></span>`;
+    const title = decodeURIComponent(image.dataset.wiki);
+    const endpoint = `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&piprop=thumbnail&pithumbsize=1400&titles=${encodeURIComponent(title)}`;
+    const response = await fetch(endpoint);
+    if (!response.ok) throw new Error('image lookup failed');
+    const payload = await response.json();
+    const page = Object.values(payload.query?.pages || {})[0];
+    if (!page?.thumbnail?.source) throw new Error('no article image');
+    image.src = page.thumbnail.source;
+    image.onerror = () => image.remove();
   } catch {
-    holder.innerHTML = `<div class="image-placeholder">${escapeHtml(item.name)}</div><span class="photo-note">该词条主图暂不可用；请通过右侧“查看图片出处”核验。</span>`;
+    image.remove();
   }
 }
 
 function escapeHtml(value) { return value.replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[char])); }
 
-function initialPlace() {
+function initialDay() {
   const today = new Date().toLocaleDateString('en-CA');
-  const currentDay = days.find(day => day.date === today);
-  const saved = localStorage.getItem('victoria-loop-current-place');
-  return currentDay?.places[0].id || saved || days[0].places[0].id;
+  const dateIndex = days.findIndex(day => day.date === today);
+  const saved = Number(localStorage.getItem('victoria-loop-current-day'));
+  return dateIndex >= 0 ? dateIndex : (Number.isInteger(saved) && saved >= 0 && saved < days.length ? saved : 0);
 }
 
 document.querySelector('#show-alerts').addEventListener('click', () => document.querySelector('#alerts').scrollIntoView({ behavior: 'smooth' }));
 document.querySelector('#booking-hub').innerHTML = `<h3>预约与核验</h3><p>以下均为运营方或场馆官方入口；价格、余位、取消规则和最后到场时间以实际订单为准。</p><div class="booking-list">${Object.values(bookings).map((entry, index) => `<a href="${entry.url}" target="_blank" rel="noopener"><span>${String(index + 1).padStart(2, '0')} · ${entry.label}</span><strong>${entry.title}</strong><small>${entry.note} ↗</small></a>`).join('')}</div>`;
 menuButton?.addEventListener('click', () => { const open = sidebar.classList.toggle('is-open'); menuButton.setAttribute('aria-expanded', String(open)); });
 buildNav();
-renderPlace(initialPlace());
+initMap();
+renderDay(initialDay());

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="2026 维多利亚州自然生态环线：共享、轻量、离线友好的旅行指南。" />
     <title>Victoria Wild Loop · 2026</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -41,21 +42,9 @@
               <button class="text-button" id="show-alerts" type="button">出行提醒 <span>↘</span></button>
             </div>
           </div>
-          <div class="map-panel" aria-label="维多利亚州行进路线示意图">
-            <div class="map-label map-label-start">MELBOURNE</div>
-            <div class="map-label map-label-prom">WILSONS<br />PROM</div>
-            <div class="map-label map-label-road">GREAT<br />OCEAN RD</div>
-            <svg viewBox="0 0 620 440" role="img" aria-labelledby="map-title map-desc">
-              <title id="map-title">维多利亚州自然生态环线路线图</title>
-              <desc id="map-desc">从墨尔本向东至希尔斯维尔、威尔逊岬和菲利普岛，经莫宁顿半岛横渡海湾，再沿大洋路向西，最后经内陆回到墨尔本。</desc>
-              <path class="vic-outline" d="M87 51 C133 23 196 37 241 35 C297 30 345 48 400 41 C455 29 515 48 546 85 L533 117 L558 148 L541 180 L558 218 L525 249 L519 287 L476 311 L446 360 L393 366 L351 394 L294 383 L266 407 L224 398 L193 366 L151 353 L125 320 L92 307 L76 267 L41 249 L57 203 L43 169 L58 127 L48 94 Z" />
-              <path class="route-line" d="M310 234 C339 195 373 163 422 171 C452 178 463 228 441 267 C422 301 382 322 347 294 C325 277 329 247 349 233 C372 217 393 241 379 260 C359 287 325 284 282 271 C246 260 202 260 166 276 C127 293 112 316 138 330 C181 353 230 330 251 300" />
-              <path class="route-line route-return" d="M251 300 C228 263 202 223 234 189 C258 163 284 170 310 234" />
-              <g class="route-stops">
-                <circle cx="310" cy="234" r="7" /><circle cx="349" cy="181" r="6" /><circle cx="422" cy="171" r="7" /><circle cx="441" cy="267" r="7" /><circle cx="379" cy="260" r="6" /><circle cx="347" cy="294" r="6" /><circle cx="282" cy="271" r="6" /><circle cx="166" cy="276" r="7" /><circle cx="138" cy="330" r="6" /><circle cx="251" cy="300" r="6" />
-              </g>
-            </svg>
-            <div class="map-key"><span></span> 约 1,200 km 的环线节奏</div>
+          <div class="map-panel" aria-label="维多利亚州行进路线地图">
+            <div id="route-map" role="application" aria-label="带有行程节点的维多利亚州地图"></div>
+            <div class="map-key"><span></span> 当前日期节点会高亮显示 · 约 1,200 km 环线</div>
           </div>
         </section>
 
@@ -67,7 +56,8 @@
 
         <section id="place-content" class="place-section" aria-live="polite">
           <div id="place-heading" class="place-heading"></div>
-          <article id="place-card" class="place-card"></article>
+          <div id="place-cards" class="place-cards"></div>
+          <nav id="day-pagination" class="day-pagination" aria-label="切换行程日"></nav>
         </section>
 
         <section id="alerts" class="alerts" aria-labelledby="alert-title">
@@ -87,6 +77,7 @@
         </footer>
       </main>
     </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script src="app.js"></script>
   </body>
 </html>
