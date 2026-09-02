@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="2026 维多利亚州自然生态环线：共享、轻量、离线友好的旅行指南。" />
+    <title>Victoria Wild Loop · 2026</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#place-content">跳到当前景点</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="行程目录">
+        <a class="brand" href="#top" aria-label="返回首页">
+          <span class="brand-mark">VW</span>
+          <span><strong>Victoria Wild Loop</strong><small>SEP 24 — OCT 06 · 2026</small></span>
+        </a>
+        <div class="sidebar-intro">
+          <p>自然生态环线</p>
+          <span>12 日历日 · 10 个深度游玩日</span>
+        </div>
+        <nav id="itinerary-nav" class="itinerary-nav" aria-label="按日程浏览"></nav>
+        <div class="sidebar-footer">
+          <span class="status-dot"></span> 每日打开，下一站即在眼前
+        </div>
+      </aside>
+
+      <main id="top" class="main-content">
+        <header class="mobile-header">
+          <a class="brand" href="#top"><span class="brand-mark">VW</span><strong>Victoria Wild Loop</strong></a>
+          <button id="menu-button" class="menu-button" type="button" aria-expanded="false" aria-controls="itinerary-nav">行程</button>
+        </header>
+
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <p class="eyebrow">AUSTRALIA · VICTORIA</p>
+            <h1 id="hero-title">沿着海岸与荒野，<br />缓慢绕一圈。</h1>
+            <p class="hero-summary">从墨尔本的街巷，到威尔逊岬的花岗岩海岸；穿越菲利普岛、莫宁顿半岛与大洋路，再回到城市。此页只收纳已确定的计划与当日备选。</p>
+            <div class="hero-actions">
+              <a class="button button-dark" href="#place-content" id="resume-link">查看今日路线</a>
+              <button class="text-button" id="show-alerts" type="button">出行提醒 <span>↘</span></button>
+            </div>
+          </div>
+          <div class="map-panel" aria-label="维多利亚州行进路线示意图">
+            <div class="map-label map-label-start">MELBOURNE</div>
+            <div class="map-label map-label-prom">WILSONS<br />PROM</div>
+            <div class="map-label map-label-road">GREAT<br />OCEAN RD</div>
+            <svg viewBox="0 0 620 440" role="img" aria-labelledby="map-title map-desc">
+              <title id="map-title">维多利亚州自然生态环线路线图</title>
+              <desc id="map-desc">从墨尔本向东至希尔斯维尔、威尔逊岬和菲利普岛，经莫宁顿半岛横渡海湾，再沿大洋路向西，最后经内陆回到墨尔本。</desc>
+              <path class="vic-outline" d="M87 51 C133 23 196 37 241 35 C297 30 345 48 400 41 C455 29 515 48 546 85 L533 117 L558 148 L541 180 L558 218 L525 249 L519 287 L476 311 L446 360 L393 366 L351 394 L294 383 L266 407 L224 398 L193 366 L151 353 L125 320 L92 307 L76 267 L41 249 L57 203 L43 169 L58 127 L48 94 Z" />
+              <path class="route-line" d="M310 234 C339 195 373 163 422 171 C452 178 463 228 441 267 C422 301 382 322 347 294 C325 277 329 247 349 233 C372 217 393 241 379 260 C359 287 325 284 282 271 C246 260 202 260 166 276 C127 293 112 316 138 330 C181 353 230 330 251 300" />
+              <path class="route-line route-return" d="M251 300 C228 263 202 223 234 189 C258 163 284 170 310 234" />
+              <g class="route-stops">
+                <circle cx="310" cy="234" r="7" /><circle cx="349" cy="181" r="6" /><circle cx="422" cy="171" r="7" /><circle cx="441" cy="267" r="7" /><circle cx="379" cy="260" r="6" /><circle cx="347" cy="294" r="6" /><circle cx="282" cy="271" r="6" /><circle cx="166" cy="276" r="7" /><circle cx="138" cy="330" r="6" /><circle cx="251" cy="300" r="6" />
+              </g>
+            </svg>
+            <div class="map-key"><span></span> 约 1,200 km 的环线节奏</div>
+          </div>
+        </section>
+
+        <section class="route-strip" aria-label="行程阶段">
+          <article><span>01</span><strong>城市与山谷</strong><small>Melbourne · Yarra Valley</small></article>
+          <article><span>02</span><strong>岬角与岛屿</strong><small>Wilsons Prom · Phillip Island</small></article>
+          <article><span>03</span><strong>海湾与大洋路</strong><small>Mornington · Great Ocean Road</small></article>
+        </section>
+
+        <section id="place-content" class="place-section" aria-live="polite">
+          <div id="place-heading" class="place-heading"></div>
+          <article id="place-card" class="place-card"></article>
+        </section>
+
+        <section id="alerts" class="alerts" aria-labelledby="alert-title">
+          <div><p class="eyebrow">LEAVE ROOM FOR WEATHER</p><h2 id="alert-title">有些事，留到当天决定。</h2></div>
+          <div class="alert-grid">
+            <article><span class="alert-number">01</span><h3>天气与路况</h3><p>早春湿冷，大洋路、奥特威与威尔逊岬易受天气影响。出发前一周复核路况与预报。</p></article>
+            <article><span class="alert-number">02</span><h3>预约优先</h3><p>潮汐河住宿、企鹅归巢、车辆轮渡和半岛温泉优先预订；带车轮渡按运营方要求提早值船。</p></article>
+            <article><span class="alert-number">03</span><h3>夜间与夏令时</h3><p>D5 大沙丘、D6 企鹅归巢后与 D11 回城会天黑。10 月 4 日凌晨起夏令时，时钟拨快一小时。</p></article>
+            <article class="alert-important"><span class="alert-number">!</span><h3>威尔逊岬公告</h3><p>官方当前公告称 8 月 31 日至 11 月 20 日入口或有临时交通管制；覆盖本行程日期，请在出发前复核。</p></article>
+          </div>
+          <div class="booking-hub" id="booking-hub" aria-label="官方预约与核验清单"></div>
+        </section>
+
+        <footer>
+          <span>维多利亚州自然生态环线 · 确认版整理</span>
+          <a href="#top">回到地图 ↑</a>
+        </footer>
+      </main>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
