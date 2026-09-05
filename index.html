@@ -6,7 +6,7 @@
     <meta name="description" content="2026 维多利亚州自然生态环线：共享、轻量、离线友好的旅行指南。" />
     <title>Victoria Wild Loop · 2026</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260906" />
   </head>
   <body>
     <a class="skip-link" href="#place-content">跳到当前景点</a>
@@ -18,7 +18,7 @@
         </a>
         <div class="sidebar-intro">
           <p>自然生态环线</p>
-          <span>12 日历日 · 10 个深度游玩日</span>
+          <span>13 日历日 · 12 个行程日</span>
         </div>
         <nav id="itinerary-nav" class="itinerary-nav" aria-label="按日程浏览"></nav>
         <div class="sidebar-footer">
@@ -36,7 +36,7 @@
           <div class="hero-copy">
             <p class="eyebrow">AUSTRALIA · VICTORIA</p>
             <h1 id="hero-title">沿着海岸与荒野，<br />缓慢绕一圈。</h1>
-            <p class="hero-summary">从墨尔本的街巷，到威尔逊岬的花岗岩海岸；穿越菲利普岛、莫宁顿半岛与大洋路，再回到城市。此页只收纳已确定的计划与当日备选。</p>
+            <p class="hero-summary">从墨尔本的街巷，到威尔逊岬的花岗岩海岸；穿越菲利普岛、莫宁顿半岛与完整的大洋路，再回到城市。此页只收纳已确定的主线与当日备选。</p>
             <div class="hero-actions">
               <a class="button button-dark" href="#place-content" id="resume-link">查看今日路线</a>
               <button class="text-button" id="show-alerts" type="button">出行提醒 <span>↘</span></button>
@@ -44,7 +44,7 @@
           </div>
           <div class="map-panel" aria-label="维多利亚州行进路线地图">
             <div id="route-map" role="application" aria-label="带有行程节点的维多利亚州地图"></div>
-            <div class="map-key"><span></span> 当前日期节点会高亮显示 · 约 1,200 km 环线</div>
+            <div class="map-key"><span></span> 当前日期节点会高亮显示 · 全线陆路 · 约 1,250 km</div>
           </div>
         </section>
 
@@ -64,8 +64,8 @@
           <div><p class="eyebrow">LEAVE ROOM FOR WEATHER</p><h2 id="alert-title">有些事，留到当天决定。</h2></div>
           <div class="alert-grid">
             <article><span class="alert-number">01</span><h3>天气与路况</h3><p>早春湿冷，大洋路、奥特威与威尔逊岬易受天气影响。出发前一周复核路况与预报。</p></article>
-            <article><span class="alert-number">02</span><h3>预约优先</h3><p>潮汐河住宿、企鹅归巢、车辆轮渡和半岛温泉优先预订；带车轮渡按运营方要求提早值船。</p></article>
-            <article><span class="alert-number">03</span><h3>夜间与夏令时</h3><p>D5 大沙丘、D6 企鹅归巢后与 D11 回城会天黑。10 月 4 日凌晨起夏令时，时钟拨快一小时。</p></article>
+            <article><span class="alert-number">02</span><h3>预约优先</h3><p>热气球、潮汐河住宿、企鹅归巢、半岛温泉与开飞机体验优先预订；条款和最后到场时间以订单为准。</p></article>
+            <article><span class="alert-number">03</span><h3>夜间与夏令时</h3><p>D5 抵达威尔逊岬、D6 企鹅归巢后与 D11 回城会天黑。10 月 4 日凌晨起夏令时，时钟拨快一小时。</p></article>
             <article class="alert-important"><span class="alert-number">!</span><h3>威尔逊岬公告</h3><p>官方当前公告称 8 月 31 日至 11 月 20 日入口或有临时交通管制；覆盖本行程日期，请在出发前复核。</p></article>
           </div>
           <div class="booking-hub" id="booking-hub" aria-label="官方预约与核验清单"></div>
@@ -78,6 +78,6 @@
       </main>
     </div>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-    <script src="app.js"></script>
+    <script src="app.js?v=20260906"></script>
   </body>
 </html>

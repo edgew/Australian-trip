@@ -1,253 +1,66 @@
-const bookings = {
-  'qvm': { title: '女王市场官网', label: '运营信息', note: '营业日与摊位', url: 'https://qvm.com.au/' },
-  'gardens-ngv': { title: 'NGV 官方预约', label: '场馆预约', note: '入场 / 特展复核', url: 'https://www.ngv.vic.gov.au/visit/' },
-  'healesville': { title: 'Healesville Sanctuary', label: '官方购票', note: '门票与开放时间', url: 'https://www.zoo.org.au/healesville/tickets/' },
-  'balloon': { title: 'Yarra Valley 热气球', label: '运营商预约', note: '天气与取消条款', url: 'https://www.hotairballooning.com.au/yarravalley/' },
-  'tidal-river': { title: 'Tidal River 营地', label: 'Parks Victoria 预订', note: '住宿 / 车位复核', url: 'https://bookings.parks.vic.gov.au/book/wilsons-prom-accommodation' },
-  'penguin': { title: 'Penguin Parade', label: '官方购票', note: '票档与到场时间', url: 'https://www.penguins.org.au/buy-tickets/' },
-  'hot-springs': { title: 'Peninsula Hot Springs', label: '官方预约', note: '浴场时段', url: 'https://www.peninsulahotsprings.com/book/' },
-  'ferry': { title: 'Searoad Ferries', label: '官方订位', note: '带车值船 45 分钟前', url: 'https://www.searoad.com.au/book-now/' },
-  'maits': { title: 'Cape Otway Lightstation', label: '官网 / 购票', note: '仅天气好且道路开放时', url: 'https://www.lightstation.com/' },
-  'learn-to-fly': { title: 'Learn To Fly Melbourne', label: '官方咨询 / 预约', note: '体验飞行与天气条款', url: 'https://learntofly.edu.au/contact/' }
-};
-
-const spotMeta = {
-  'city-arrival': ['main', '城市漫步', '地标与河岸'], 'st-patricks': ['optional', '景点', '哥特建筑'], qvm: ['main', '市场', '本地食材'], hosier: ['main', '景点', '街头艺术'], 'gardens-ngv': ['main', '景点群', '园林与艺术'], fitzroy: ['optional', '街区', '咖啡与小店'],
-  yarravalley: ['main', '行程节点', '山谷与葡萄园'], healesville: ['main', '景点', '本土动物'], balloon: ['optional', '体验', '日出飞行'], 'tidal-river': ['main', '景点', '河口与野生动物'], squeaky: ['main', '景点', '石英白沙'], lilly: ['optional', '景点', '温带雨林'], bigdrift: ['main', '景点', '沙丘日落'],
-  tonguepoint: ['optional', '徒步', '海岬远眺'], nobbies: ['main', '景点', '海豹与海鸟'], penguin: ['main', '体验', '小蓝企鹅'], woolamai: ['optional', '景点', '海岸徒步'], 'hot-springs': ['main', '体验', '地热泡池'],
-  pointnepean: ['optional', '景点', '海岬遗址'], ferry: ['main', '交通', '跨湾渡轮'], surfcoast: ['optional', '景点群', '冲浪海岸'], splitpoint: ['main', '景点群', '灯塔与大洋路'], erskine: ['optional', '景点', '雨林瀑布'], kennett: ['optional', '景点', '野生考拉'], maits: ['main', '景点', '巨型蕨类'],
-  gibson: ['optional', '景点', '近海崖壁'], apostles: ['main', '景点', '海蚀岩柱'], lochard: ['main', '景点', '峡谷海湾'], londonbridge: ['optional', '景点', '坍塌海拱'], bayislands: ['main', '景点', '海岸岩柱'], 'learn-to-fly': ['main', '体验', '亲手操控飞机'], 'ngv-library': ['optional', '景点群', '艺术与人文'], departure: ['main', '行程节点', '返程留白']
-};
-
-const englishNames = {
-  'city-arrival': 'Federation Square / Yarra River / Flinders Street Station', 'gardens-ngv': 'Royal Botanic Gardens Victoria / NGV / ACMI', 'tidal-river': 'Tidal River / Norman Beach', squeaky: 'Squeaky Beach / Whisky Bay / Picnic Bay', lilly: 'Lilly Pilly Gully / Wildlife Walk',
-  tonguepoint: 'Mount Bishop / Darby to Tongue Point', nobbies: 'The Nobbies / Seal Rocks', woolamai: 'Cape Woolamai / Churchill Island', pointnepean: 'Point Nepean / Sorrento', surfcoast: 'Barwon Heads / Bells Beach / Torquay', splitpoint: 'Split Point Lighthouse / Memorial Arch / Lorne',
-  maits: "Maits Rest / Cape Otway Lightstation", londonbridge: 'London Bridge / The Grotto', bayislands: 'Bay of Martyrs / Bay of Islands', 'ngv-library': 'NGV / State Library of Victoria'
-};
-
-const stayInfo = [
-  '住宿：墨尔本市中心（Melbourne CBD，酒店区域，步行与免费电车便利）', '住宿：墨尔本市中心（Melbourne CBD，酒店区域，步行与免费电车便利）', '住宿：亚拉谷（Yarra Valley，酒店区域，葡萄园与山谷）', '住宿：潮汐河（Tidal River，营地/住宿区）优先；或亚纳基（Yanakie，住宿区）',
-  '住宿：潮汐河（Tidal River，营地/住宿区），连续住两晚不换房', '住宿：考斯（Cowes，住宿区）或纽黑文（Newhaven，住宿区）', '住宿：索伦托（Sorrento）、赖伊（Rye）或芬戈尔（Fingal），均为住宿区域', '住宿：洛恩（Lorne，海滨住宿区）优先；或托基（Torquay）/ 艾里斯湾（Aireys Inlet）',
-  '住宿：阿波罗湾（Apollo Bay，海滨住宿区）', '住宿：坎贝尔港（Port Campbell，海滨住宿区）', '住宿：墨尔本（Melbourne，酒店区域）', '住宿：墨尔本（Melbourne，酒店区域）；视航班考虑机场附近', '住宿：不安排，返程日'
+const bookings={qvm:{title:'女王市场官网',label:'运营信息',note:'营业日与摊位',url:'https://qvm.com.au/'},'gardens-ngv':{title:'NGV 官方预约',label:'场馆预约',note:'入场 / 特展复核',url:'https://www.ngv.vic.gov.au/visit/'},healesville:{title:'Healesville Sanctuary',label:'官方购票',note:'门票与开放时间',url:'https://www.zoo.org.au/healesville/tickets/'},balloon:{title:'Yarra Valley 热气球',label:'运营商预约',note:'天气与取消条款',url:'https://www.hotairballooning.com.au/yarravalley/'},'tidal-river':{title:'Tidal River 营地',label:'Parks Victoria 预订',note:'住宿 / 车位复核',url:'https://bookings.parks.vic.gov.au/book/wilsons-prom-accommodation'},penguin:{title:'Penguin Parade',label:'官方购票',note:'票档与到场时间',url:'https://www.penguins.org.au/buy-tickets/'},'hot-springs':{title:'Peninsula Hot Springs',label:'官方预约',note:'浴场时段',url:'https://www.peninsulahotsprings.com/book/'},'cape-otway':{title:'Cape Otway Lightstation',label:'官网 / 购票',note:'开放、道路与入场复核',url:'https://www.lightstation.com/'},'learn-to-fly':{title:'Learn To Fly Melbourne',label:'官方咨询 / 预约',note:'体验飞行与天气条款',url:'https://learntofly.edu.au/contact/'}};
+const meta={'city-arrival':['main','城市漫步','地标与河岸'],'st-patricks':['optional','景点','哥特建筑'],qvm:['main','市场','本地食材'],hosier:['main','景点','街头艺术'],'gardens-ngv':['main','景点群','园林与艺术'],fitzroy:['optional','街区','咖啡与小店'],'ngv-library':['optional','景点群','艺术与人文'],yarravalley:['main','行程节点','山谷与葡萄园'],healesville:['main','景点','本土动物'],balloon:['main','体验','日出飞行'],'tidal-river':['main','景点','河口与野生动物'],squeaky:['main','景点','石英白沙'],bigdrift:['optional','景点','沙丘日落'],lilly:['optional','徒步','雨林生态'],nobbies:['main','景点','海豹与海鸟'],penguin:['main','体验','小蓝企鹅'],woolamai:['optional','景点','海岸徒步'],'hot-springs':['main','体验','地热泡池'],surfcoast:['optional','景点群','冲浪海岸'],splitpoint:['main','景点群','灯塔与大洋路'],erskine:['optional','景点','雨林瀑布'],kennett:['optional','景点','野生考拉'],'cape-otway':['main','景点群','森林与灯塔'],gibson:['optional','景点','近海崖壁'],apostles:['main','景点','海蚀岩柱'],lochard:['main','景点','峡谷海湾'],londonbridge:['main','景点','坍塌海拱'],grotto:['optional','景点','天然石窟'],bayislands:['main','景点','海岸岩柱'],'learn-to-fly':['main','体验','亲手操控飞机'],departure:['main','行程节点','返程留白']};
+const english={'city-arrival':'Federation Square / Yarra River / Flinders Street Station','gardens-ngv':'Royal Botanic Gardens Victoria / NGV / ACMI','ngv-library':'NGV / State Library Victoria','tidal-river':'Tidal River / Norman Beach',squeaky:'Squeaky Beach / Whisky Bay',bigdrift:'Big Drift',lilly:'Lilly Pilly Gully',nobbies:'The Nobbies / Seal Rocks',woolamai:'Cape Woolamai / Churchill Island',surfcoast:'Bells Beach / Torquay',splitpoint:'Split Point Lighthouse / Memorial Arch / Lorne','cape-otway':'Great Otway National Park / Cape Otway Lightstation',londonbridge:'London Bridge',grotto:'The Grotto',bayislands:'Bay of Islands','learn-to-fly':'Moorabbin Airport'};
+const directImages={squeaky:'https://upload.wikimedia.org/wikipedia/commons/3/33/Squeaky_beach_wilsons_prom.JPG'};
+function p(id,name,en,wiki,source,intro,guide,location,food,feature,caution){const [role,category,highlight]=meta[id]||['main','景点','行程亮点'];return{id,name,en,displayEn:english[id]||en,wiki,source,intro,guide,location,food,feature,caution,role,category,highlight,image:directImages[id]||'',booking:bookings[id]||null};}
+const stay=[
+ '住宿：墨尔本市中心（Melbourne CBD，酒店区域，步行与免费电车便利）','住宿：墨尔本市中心（Melbourne CBD，酒店区域，步行与免费电车便利）','住宿：墨尔本市中心（Melbourne CBD，酒店区域）；不转场，为后段留体力','住宿：亚拉谷（Yarra Valley，酒店区域，便于次日热气球集合）','住宿：潮汐河（Tidal River，营地/住宿区）优先；或亚纳基（Yanakie，住宿区）','住宿：考斯（Cowes，住宿区）或纽黑文（Newhaven，住宿区）','住宿：墨尔本（Melbourne CBD，酒店区域）','住宿：洛恩（Lorne，海滨住宿区）','住宿：阿波罗湾（Apollo Bay，海滨住宿区）','住宿：坎贝尔港（Port Campbell，海滨住宿区）','住宿：墨尔本（Melbourne，酒店区域）','住宿：墨尔本（Melbourne，酒店区域）；视航班考虑机场附近','住宿：不安排，返程日'];
+const pace=['到达日：只保留主线，按精力决定备选。','节奏舒缓：备选可按天气与体力取舍。','留白日：不离开墨尔本，为后段连续转场储备体力。','转场日：包车出城，先保证动物保护区闭园前抵达。','紧凑日：热气球保留；下午只做抵达威尔逊岬后的轻量活动。','紧凑日：威尔逊岬只取代表性海湾，午后必须转场赴菲利普岛。','转场日：丘吉尔岛 / 伍拉迈角为备选，半岛温泉为主线。','自驾日：完整走大洋路东段；停靠点主动收缩，不搭乘轮渡。','节奏适中：奥特维国家公园与海角灯塔为主线；瀑布、考拉观察为备选。','紧凑日：吉布森台阶受海况影响，十二门徒与峡谷优先。','紧凑日：西段只选两处主线观景点，随后内陆回城。','缓冲日：飞行体验之外的人文场馆均为备选。','返程日：不再安排景点。'];
+const days=[
+ {date:'2026-09-24',label:'D1',dateText:'09.24 · 周四',title:'抵达墨尔本',route:'不租车 · 市中心轻量步行 · 住 Melbourne CBD',places:[
+  p('city-arrival','墨尔本城市地标散步','Melbourne City Walk','Flinders_Street_railway_station','https://www.visitmelbourne.com/','把第一天留给调时差：联邦广场、雅拉河和弗林德斯街车站可随体力任意串联。','联邦广场 → 雅拉河河岸 → 弗林德斯街车站；到得晚仅选一段河岸步行。','Melbourne CBD；各点在免费电车区或步行范围。','咖啡与轻食优先，按落地时间决定。','城市地标、河岸与百年车站','抵达日不赶景点；疲劳时直接删减。'),
+  p('st-patricks','圣派翠克大教堂（备选）',"St Patrick's Cathedral","St_Patrick's_Cathedral,_Melbourne",'https://melbournecathedral.org.au/','抵达较早且精力尚可时的顺路备选。','入内前查看开放与礼拜安排；保持安静、注意着装。','1 Cathedral Place, East Melbourne。','CBD 或东区晚餐。','哥特式尖塔与彩窗','开放时段可能因礼拜调整（预计）。')]},
+ {date:'2026-09-25',label:'D2',dateText:'09.25 · 周五',title:'墨尔本市区启动',route:'免费电车区 · 市场、巷弄、园林 · 傍晚 Fitzroy',places:[
+  p('qvm','维多利亚女王市场','Queen Victoria Market','Queen_Victoria_Market','https://qvm.com.au/','历史市场是市区启动的生活化一站：农产、熟食与摊位构成墨尔本的日常切面。','先确认当日开市时间；早餐或补给在这里完成。','Queen St & Victoria St, Melbourne。','市场熟食、烘焙与咖啡。','历史露天市场与本地食材','不同日期营业摊位和夜市安排不同（预计）。'),
+  p('hosier','涂鸦巷','Hosier Lane','Hosier_Lane','https://www.visitmelbourne.com/regions/melbourne/see-and-do/art-and-culture/street-art/hosier-lane','持续变化的街头艺术巷道，把它当作城市纹理，而非固定展览。','从 Flinders Street 一侧进入；注意车辆，短停即可。','Hosier Lane, Melbourne CBD。','周边巷弄咖啡馆。','高密度街头艺术','墙绘与既往照片不同属正常。'),
+  p('gardens-ngv','皇家植物园与艺术馆群','Royal Botanic Gardens Victoria','Royal_Botanic_Gardens_Victoria','https://www.rbg.vic.gov.au/','用植物园放慢市区节奏；雨天改逛 NGV 或 ACMI。','植物园走小环即可；展馆预约与闭馆时间出发前复核。','Birdwood Ave, South Yarra；NGV 与 ACMI 在市中心周边。','Southbank 或 CBD 午餐。','英式园林、艺术与银幕文化','展览政策及票务须复核（预计）。'),
+  p('fitzroy','Fitzroy 傍晚散步','Fitzroy, Victoria','Fitzroy,_Victoria','https://www.visitmelbourne.com/regions/melbourne/destinations/fitzroy','作为松弛收尾，不预设路径。','沿 Brunswick Street 或 Gertrude Street 随走随停。','Melbourne CBD 以北。','咖啡、酒吧和小店临场选择。','文艺街区与独立店铺','不安排硬性景点。')]},
+ {date:'2026-09-26',label:'D3',dateText:'09.26 · 周六',title:'墨尔本留白日',route:'全日在 Melbourne · 不取车、不转场 · 为后段储备体力',places:[
+  p('gardens-ngv','NGV 与皇家植物园','National Gallery of Victoria','National_Gallery_of_Victoria','https://www.ngv.vic.gov.au/','这一天明确留在墨尔本：将 D2 未完成的植物园与艺术馆放到白天完成，不提前进入亚拉谷。','只选一个主展馆或一段园林；晚间回酒店整理包车行李。','St Kilda Rd / South Yarra，均在市区交通范围。','Southbank 午餐或 CBD 晚餐。','艺术收藏与城市园林','展览和预约政策须出发前复核（预计）。'),
+  p('ngv-library','维多利亚州立图书馆（备选）','State Library Victoria','State_Library_Victoria','https://www.slv.vic.gov.au/','如不想重复 NGV，可改去州立图书馆；目的只是留在市区并保持轻松。','与 NGV 二选一，别把留白日重新塞满。','328 Swanston St, Melbourne。','CBD 咖啡馆与轻食。','穹顶阅览室与城市人文','开放时段以官网为准（预计）。')]},
+ {date:'2026-09-27',label:'D4',dateText:'09.27 · 周日',title:'墨尔本至亚拉谷',route:'包车 · Melbourne → Yarra Valley → Healesville Sanctuary · 住 Yarra Valley',places:[
+  p('yarravalley','亚拉谷转场','Yarra Valley','Yarra_Valley','https://www.visityarravalley.com.au/','从墨尔本正式动身，沿山谷进入次日热气球集合区。','不把酒庄排得过多；以安全行车为先。','Melbourne → Yarra Valley，车程约 1 小时（预计）。','Healesville 小镇晚餐或酒店简餐。','葡萄园与山谷公路','次晨很早集合，晚间不要安排过晚。'),
+  p('healesville','希尔斯维尔野生动物保护区','Healesville Sanctuary','Healesville_Sanctuary','https://www.zoo.org.au/healesville/','以澳洲本土动物为主的保护区；将鸭嘴兽、考拉、袋鼠等留作当日重点。','提前查看闭园和动物讲解时间；入园先确认鸭嘴兽展区。','Badger Creek Rd, Healesville。','园内简餐或 Healesville 小镇晚餐。','澳洲本土动物与保育展示','周末客流与展示安排可能变化（预计）。')]},
+ {date:'2026-09-28',label:'D5',dateText:'09.28 · 周一',title:'热气球后抵达威尔逊岬',route:'清晨热气球 · 午后包车转场 · 住 Tidal River / Yanakie',places:[
+  p('balloon','亚拉谷热气球','Yarra Valley','Yarra_Valley','https://www.hotairballooning.com.au/yarravalley/','日出前集合的飞行体验予以保留；它是整条路线中最不可替代的体验之一。','前一晚确认天气和集合点；取消仍在中午前转场。','Yarra Valley；具体起降地由运营方按天气决定。','飞行后按运营方安排早餐或在小镇补给。','日出葡萄园与山谷视野','是否起飞完全由天气决定。'),
+  p('tidal-river','潮汐河与诺曼海滩','Tidal River, Victoria','Tidal_River,_Victoria','https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park','热气球后经 Leongatha、Foster 前往威尔逊岬；傍晚只在潮汐河与诺曼海滩周边放慢。','Tidal River 无油站，务必在 Foster 前后补满；当日不再安排远处徒步。','Wilsons Promontory National Park 南端。','Foster 午餐与补给；营地自备或简餐。','河口、海滩与黄昏野生动物','入口工程公告覆盖此日期，可能有临时交通管制；出发前复核。'),
+  p('bigdrift','大沙丘（备选）','Big Drift','Wilsons_Promontory_National_Park','https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park','仅在抵达够早、天气稳定且仍有体力时加进来；不是当天必须完成的打卡。','带头灯、防风层与水；日落前开始返程。','Big Drift carpark，返程回 Tidal River。','自备零食。','风积沙丘与辽阔天际线','强风、降雨或抵达较晚时直接跳过。')]},
+ {date:'2026-09-29',label:'D6',dateText:'09.29 · 周二',title:'威尔逊岬至菲利普岛',route:'上午代表性海湾 · 午后约 2.5—3 小时转场 · Nobbies 与企鹅归巢',places:[
+  p('squeaky','吱吱海滩与威士忌湾','Squeaky Beach','Squeaky_Beach','https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/things-to-do/squeaky-beach','将威尔逊岬压缩为最具代表性的花岗岩海湾与石英白沙；这是与大洋路不重复的部分。','早到 Squeaky Beach；停车紧张或天气差时只保留一个海湾。中午前离开。','Wilsons Promontory 西侧，邻近 Tidal River。','带水与野餐；Foster 再补给。','石英白沙、花岗岩与海湾','无救生员巡逻且可能有离岸流；不把此处当游泳任务。'),
+  p('lilly','莉莉皮里谷（备选）','Lilly Pilly Gully','Wilsons_Promontory_National_Park','https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/things-to-do/day-walks','只在前一天未做大沙丘、且上午时间充足时才考虑的短线。','与海湾二选一或缩短步行，不能影响午后转场。','Tidal River 周边。','出发前补水。','蕨类雨林与原生生态','步道状态以现场公告为准。'),
+  p('nobbies','诺比斯中心与海豹岩','The Nobbies','The_Nobbies,_Victoria','https://www.penguins.org.au/visit/important-information/','抵岛后先到木栈道看海豹岩、海鸟与南岸海景，再进入企鹅归巢环节。','白天走栈道；傍晚确认道路与停车。','Phillip Island 西南端，靠近 Summerland。','在 Cowes 或途中解决正餐。','海豹岩、海鸟与海蚀海岸','中心设施与栈道开放情况出发前复核。'),
+  p('penguin','小蓝企鹅归巢','Penguin Parade','Penguin_Parade','https://www.penguins.org.au/public/attractions/penguin-parade/','小蓝企鹅在日落后从海上回到洞穴，是当晚不可压缩、须预约执行的体验。','提前订票；按票面时间到达，带防风保暖层。日落后禁止拍照或录像。','1019 Ventnor Rd, Summerlands, VIC 3922。','在 Cowes / Newhaven 提前晚餐。','小蓝企鹅归巢','到场时间以票面及官方当日提醒为准。')]},
+ {date:'2026-09-30',label:'D7',dateText:'09.30 · 周三',title:'菲利普岛回墨尔本',route:'Churchill Island / Cape Woolamai 备选 · 午后 Peninsula Hot Springs · 回 Melbourne',places:[
+  p('woolamai','伍拉迈角或丘吉尔岛（备选）','Cape Woolamai / Churchill Island','Cape_Woolamai','https://www.penguins.org.au/visit/','两者只能选一：想活动选伍拉迈角短线；风雨或偏好人文时改丘吉尔岛历史农场。','上午短停即可，午后温泉预约为优先。','Phillip Island 东南端 / Churchill Island。','Cowes 早餐，午餐后离岛。','花岗岩海岸或历史农场','不建议同时完成两处。'),
+  p('hot-springs','半岛温泉','Peninsula Hot Springs','Peninsula_Hot_Springs','https://www.peninsulahotsprings.com/','从菲利普岛回程，在莫宁顿半岛以地热浴场收束前半程。','提前预约指定时段；带泳衣、拖鞋和保暖衣物。','Springs Lane, Fingal。','温泉场馆餐饮或 Rye 晚餐。','天然地热温泉与户外泡池','票务、开放与服务时段须复核。')]},
+ {date:'2026-10-01',label:'D8',dateText:'10.01 · 周四',title:'自驾进入大洋路',route:'租车自驾 · Melbourne → Surf Coast → Split Point → Memorial Arch → Lorne · 不乘船',places:[
+  p('surfcoast','冲浪海岸（备选）','Bells Beach / Torquay','Bells_Beach,_Victoria','https://www.visitvictoria.com/regions/great-ocean-road','完整经过大洋路东段，但不再逐个停靠 Barwon Heads、Bells Beach 与 Torquay。','对冲浪有兴趣才选 Bells Beach；否则补给后直接前往灯塔与拱门。','Melbourne → Torquay → Aireys Inlet。','Torquay 简餐或咖啡。','冲浪海岸与礁岩浪线','海滩观景不等于适合下水。'),
+  p('splitpoint','分角灯塔、纪念拱门与洛恩','Split Point Lighthouse / Memorial Arch / Lorne','Split_Point_Lighthouse','https://www.greatoceanroadauthority.vic.gov.au/','保留东段最具辨识度的灯塔与大洋路入口标志，天黑前抵达洛恩。','先确认灯塔登塔开放；纪念拱门短停拍照，不为小镇反复停车。','Aireys Inlet → Eastern View → Lorne。','Lorne 海滨晚餐。','白色灯塔与大洋路入口标志','自驾第一天保持保守节奏，沿线多弯。')]},
+ {date:'2026-10-02',label:'D9',dateText:'10.02 · 周五',title:'奥特维国家公园与海角灯塔',route:'Lorne →（Erskine / Kennett 备选）→ Great Otway National Park → Cape Otway Lightstation → Apollo Bay',places:[
+  p('erskine','厄斯金瀑布（备选）','Erskine Falls','Erskine_Falls','https://www.parks.vic.gov.au/places-to-see/parks/great-otway-national-park','洛恩腹地的雨林瀑布；若前日抵达较晚或天气不好，它是当天第一个可删减点。','台阶湿滑，暴雨后按封闭信息调整。','Erskine Falls Access Rd, Lorne hinterland。','Lorne 早餐后再决定。','雨林瀑布与蕨类谷地','道路与步道状态可能变化（预计）。'),
+  p('kennett','肯尼特河看考拉（备选）','Kennett River','Kennett_River','https://www.visitvictoria.com/regions/great-ocean-road','野生考拉观察不保证；因前段已有保护区动物体验，将其降为顺路备选。','抬头看树冠、保持距离，不投喂；路边停车注意来车。','Kennett River, Great Ocean Road。','仅作轻补给，不作为正餐目的地。','野生考拉与桉树林','动物出现具有随机性（预计）。'),
+  p('cape-otway','奥特维国家公园与奥特维海角灯塔','Great Otway National Park / Cape Otway Lightstation','Cape_Otway_Lightstation','https://www.parks.vic.gov.au/places-to-see/parks/great-otway-national-park','这是 10 月 2 日固定主线：穿越温带雨林后驶往海角灯塔；不再安排 Maits Rest。','灯塔是从主路向南的专程支线，先确认道路、开放和入场；停靠备选点过久时优先删备选。','Cape Otway Lightstation 位于 Apollo Bay 以西约 35 km，距大洋路约 12 km 支线。','抵达 Apollo Bay 后晚餐；沿途只作轻补给。','温带森林、海角与历史灯塔','开放、收费与道路条件须出发前复核。')]},
+ {date:'2026-10-03',label:'D10',dateText:'10.03 · 周六',title:'十二门徒与坎贝尔港',route:'Apollo Bay → Gibson Steps（备选）→ Twelve Apostles → Loch Ard Gorge · 住 Port Campbell',places:[
+  p('gibson','吉布森台阶（备选）','Gibson Steps','Gibson_Steps','https://www.parks.vic.gov.au/places-to-see/parks/port-campbell-national-park','近海平面感受石灰岩海岸；海况或停车不理想时直接跳过。','先看潮汐、风浪与现场封闭标识；不翻越护栏。','距十二门徒观景区不远。','Apollo Bay 出发前吃饱。','近距离海蚀崖与海滩','能否下行取决于海况与现场公告。'),
+  p('apostles','十二门徒','Twelve Apostles','Twelve_Apostles_(Victoria)','https://www.parks.vic.gov.au/places-to-see/parks/port-campbell-national-park','大洋路最具标志性的石灰岩海柱群；早到可换取更好光线、停车与人流。','沿官方观景步道行走；强风时远离悬崖边。','Port Campbell National Park, Victoria。','午餐放在 Port Campbell。','南大洋海蚀石灰岩柱','停车和人流会波动，建议早到。'),
+  p('lochard','洛阿德峡谷','Loch Ard Gorge','Loch_Ard_Gorge','https://www.parks.vic.gov.au/places-to-see/parks/port-campbell-national-park','十二门徒之后细走峡谷海湾与沉船故事，是当天第二个不可压缩的主线。','只在开放步道上行走，注意强风与浪涌。','Port Campbell National Park，近坎贝尔港。','Port Campbell 小镇晚餐。','峡谷、海湾与沉船故事','步道与海况以当天现场为准。')]},
+ {date:'2026-10-04',label:'D11',dateText:'10.04 · 周日',title:'西段海岸回墨尔本',route:'Port Campbell → London Bridge →（The Grotto 备选）→ Bay of Islands → 内陆回 Melbourne',places:[
+  p('londonbridge','伦敦桥','London Bridge','London_Bridge_(Victoria)','https://www.parks.vic.gov.au/places-to-see/parks/bay-of-islands-coastal-park','西段保留一处形态鲜明的坍塌海拱，不将相似海蚀点全部串联。','短停观景，遵守围栏与风况提示。','Port Campbell 西侧 Great Ocean Road 沿线。','Port Campbell 出发前补给。','坍塌海拱与南大洋海景','不在上午耗尽，下午需内陆长途返城。'),
+  p('grotto','石窟（备选）','The Grotto','The_Grotto_(Victoria)','https://www.parks.vic.gov.au/places-to-see/parks/bay-of-islands-coastal-park','天然石窟与潮池景观；与伦敦桥同属相近海蚀主题，时间紧时跳过。','只在指定观景区停留，不下未开放岩面。','Peterborough 附近。','沿线仅作轻补给。','石灰岩石窟与潮池','强风或海况不佳时直接略过。'),
+  p('bayislands','群岛湾','Bay of Islands','Bay_of_Islands_Coastal_Park','https://www.parks.vic.gov.au/places-to-see/parks/bay-of-islands-coastal-park','把最后的主线海景留给更开阔的群岛湾，再从内陆回到墨尔本。','观景后立即启程；内陆回城约 4—5 小时（预计），须留休息余量。','Peterborough 以西海岸，后转内陆往 Melbourne。','服务区补给，抵达 Melbourne 再正餐。','开阔海岸岩柱与长线海景','当日凌晨夏令时开始，时钟拨快 1 小时。')]},
+ {date:'2026-10-05',label:'D12',dateText:'10.05 · 周一',title:'开飞机体验与收尾',route:'Moorabbin 体验飞行 · 市区人文或天气缓冲 · 整理返程',places:[
+  p('learn-to-fly','Moorabbin 开飞机体验','Moorabbin Airport','Moorabbin_Airport','https://learntofly.edu.au/','由教员陪同的通航体验；报到与实际飞行安排以订单为准。','提前到机场；带照片证件，确认天气、体重限制与取消条款。','Moorabbin Airport，市区东南约 30 分钟（预计）。','飞行后回市区午餐。','在教员陪同下的通航体验','产品时长与资格要求须以预约运营方为准。'),
+  p('ngv-library','NGV / 州立图书馆（备选）','NGV / State Library Victoria','National_Gallery_of_Victoria','https://www.ngv.vic.gov.au/','午后作为全线天气变动后的缓冲，只选一个重点看。','确认临展预约与闭馆时间；早些回酒店整理行李。','NGV：St Kilda Rd；州立图书馆：328 Swanston St。','Southbank 或 CBD 最后一顿晚餐。','维州艺术收藏与历史阅览空间','展览与开馆时间可能调整（预计）。')]},
+ {date:'2026-10-06',label:'END',dateText:'10.06 · 周二',title:'返程日',route:'不安排行程 · 提前到机场 · 留给不可控因素',places:[p('departure','返程与最后检查','Melbourne Airport','Melbourne_Airport','https://www.melbourneairport.com.au/','返程日不安排行程；若航班很早，前一日就应完成所有收尾。','确认航站楼、值机、行李与接送/还车信息。','Melbourne Airport / Tullamarine。','按航班时间在机场或住宿附近早餐。','留白本身就是行程的一部分','航班与交通以实际订单为准。')]}
 ];
-
-const dayPace = [
-  '到达日：只保留主线，按精力决定备选。', '节奏舒缓：备选可按天气与体力取舍。', '转场日：先保证取车和保护区闭园前到达。', '紧凑日：热气球取消不补项目，午后专注转场。', '舒缓日：海湾间灵活取舍，日落前为大沙丘留体力。', '紧凑日：上午徒步二选一，傍晚企鹅归巢不可压缩。', '转场日：伍拉迈角 / 丘吉尔岛二选一，温泉为主线。', '紧凑日：先锁定轮渡班次，沿海停靠只选最想看的。', '节奏适中：Maits Rest 为主线，Cape Otway 只在条件合适时加入。', '紧凑日：吉布森台阶受海况影响，十二门徒与峡谷优先。', '紧凑日：西段海岸只保留最想看的 1—2 个点，预留内陆返城。', '缓冲日：飞行体验之外的人文场馆均为备选。', '返程日：不再安排景点。'
-];
-
-const days = [
-  { date: '2026-09-24', label: 'D1', dateText: '09.24 · 周四', title: '抵达墨尔本', route: '不租车 · 市中心轻量步行 · 住 Melbourne CBD', places: [
-    place('city-arrival', '墨尔本城市地标散步', 'Melbourne City Walk', '把第一天留给调时差：联邦广场、雅拉河和弗林德斯街车站可随体力任意串联。无需追求打卡数量，找到节奏即可。', '联邦广场 → 雅拉河河岸 → 弗林德斯街车站；若到得晚，仅选一段河岸步行。', 'Melbourne CBD；各点都在免费电车区或步行范围。', '咖啡与轻食优先；到达日不预设餐厅，按落地时间决定。', '城市地标、河岸与百年车站', '抵达日不租车；天气或疲劳时把行程压缩为一小段散步。', 'Flinders_Street_railway_station', 'https://www.visitmelbourne.com/'),
-    place('st-patricks', '圣派翠克大教堂（备选）', "St Patrick's Cathedral", '位于市中心东缘的哥特式主教堂，是抵达较早且精力尚可时的顺路备选。若 D1 看过，D2 可直接略过。', '入内前查看当日开放与礼拜安排；保持安静、注意着装。', '1 Cathedral Place, East Melbourne。', '逛完可到东区或 CBD 用餐。', '哥特式尖塔与彩窗', '开放时段可能因礼拜活动调整（预计）。', "St_Patrick's_Cathedral,_Melbourne", 'https://melbournecathedral.org.au/')
-  ]},
-  { date: '2026-09-25', label: 'D2', dateText: '09.25 · 周五', title: '墨尔本市区启动', route: '免费电车区 · 市场、巷弄、园林 · 傍晚 Fitzroy', places: [
-    place('qvm', '维多利亚女王市场', 'Queen Victoria Market', '历史市场是市区启动的生活化一站：农产、熟食与摊位构成墨尔本的日常切面。', '先确认当日开市时间；早餐或补给适合放在这里完成。', 'Queen St & Victoria St, Melbourne。', '市场内的熟食、烘焙与咖啡；按当天营业摊位选择。', '历史露天市场与本地食材', '不同日期营业摊位和夜市安排不同（预计）。', 'Queen_Victoria_Market', 'https://qvm.com.au/'),
-    place('hosier', '涂鸦巷', 'Hosier Lane', 'Hosier Lane 是持续变化的街头艺术巷道；把它当作城市纹理的一部分，而不是固定展览。', '从 Flinders Street 一侧进入；注意车辆与狭窄路面，快进快出即可。', 'Hosier Lane, Melbourne CBD。', '周边巷弄咖啡馆；不指定单店，避免被营业调整影响。', '高密度街头艺术', '画面会随时间变化，当前墙绘与照片不同属于正常。', 'Hosier_Lane', 'https://www.visitmelbourne.com/regions/melbourne/see-and-do/art-and-culture/street-art/hosier-lane'),
-    place('gardens-ngv', '皇家植物园与艺术馆群', 'Royal Botanic Gardens Victoria', '皇家植物园适合把市区节奏放慢；NGV、ACMI 与圣派翠克大教堂作为同日人文备选，按天气和体力取舍。', '植物园走一小环即可；雨天优先 NGV 或 ACMI。展馆入场与特展规则出发前复核。', 'Birdwood Ave, South Yarra；NGV 与 ACMI 均在市中心周边。', 'Southbank 或 CBD 午餐；展馆咖啡厅为雨天稳妥选项。', '英式园林、艺术与银幕文化', 'NGV 等场馆的预约政策及特展票务须出发前复核（预计）。', 'Royal_Botanic_Gardens_Victoria', 'https://www.rbg.vic.gov.au/'),
-    place('fitzroy', 'Fitzroy 傍晚散步', 'Fitzroy, Victoria', 'Fitzroy 是行程中的松弛备选：街头、咖啡馆、独立店铺都不必预设路径。', '傍晚沿 Brunswick Street 或 Gertrude Street 随走随停；保留回 CBD 的电车时间。', 'Melbourne CBD 以北。', '咖啡、酒吧和小店；临场选择更合适。', '文艺街区与独立店铺', '不安排硬性景点，作为当天弹性收尾。', 'Fitzroy,_Victoria', 'https://www.visitmelbourne.com/regions/melbourne/destinations/fitzroy')
-  ]},
-  { date: '2026-09-26', label: 'D3', dateText: '09.26 · 周六', title: '亚拉谷与鸭嘴兽', route: '上午墨尔本 · 下午取车 · 约 1 小时到 Yarra Valley', places: [
-    place('yarravalley', '亚拉谷取车与转场', 'Yarra Valley', '上午仍在墨尔本，下午才取车进入亚拉谷。把第一段左侧通行留给白天、熟悉道路的短程驾驶。', '取车时检查车况、儿童座椅（如需）与保险；出城后不要安排过多酒庄停靠。', 'Melbourne → Yarra Valley，约 1 小时车程（预计，视取车点与路况）。', '亚拉谷午餐或简餐；驾驶者不饮酒。', '葡萄园与山谷公路', '当日重点是安全适应右舵左行，不赶行程。', 'Yarra_Valley', 'https://www.visityarravalley.com.au/'),
-    place('healesville', '希尔斯维尔野生动物保护区', 'Healesville Sanctuary', '以澳洲本土动物为主的保护区；把鸭嘴兽、袋獾、考拉、袋鼠留在傍晚的主要参观目标。', '提前查看闭园时间与动物讲解时段；入园先确认鸭嘴兽展示区位置，再反向安排。', 'Badger Creek Rd, Healesville。', '园内简餐或 Healesville 小镇晚餐；以闭园时间倒推。', '澳洲本土动物与保育展示', '周末客流与当日动物展示安排可能变化（预计）。', 'Healesville_Sanctuary', 'https://www.zoo.org.au/healesville/')
-  ]},
-  { date: '2026-09-27', label: 'D4', dateText: '09.27 · 周日', title: '热气球后奔向威尔逊岬', route: '清晨热气球（可取消） · 中午出发 · 住 Tidal River / Yanakie', places: [
-    place('balloon', '亚拉谷热气球（碰运气项）', 'Yarra Valley', '日出前集合，体验约 3—4 小时；它是保留的惊喜项目，而不是压缩后续车程的理由。', '前一晚确认天气与集合信息；若风、雾、雨取消，回酒店收拾后按原计划中午出发。', 'Yarra Valley；具体起降地由运营方按当日天气决定。', '飞行后按运营方安排早餐（若包含）或在小镇补给。', '日出葡萄园与山谷视野', '是否起飞完全由天气决定；取消可改期或退款以运营方条款为准。', 'Yarra_Valley', 'https://www.visitvictoria.com/regions/yarra-valley-and-dandenong-ranges'),
-    place('tidal-river', '潮汐河与诺曼海滩', 'Tidal River, Victoria', '中午从亚拉谷出发，途中经 Leongatha、Foster 午餐与加油；傍晚在诺曼海滩、潮汐河河口和营地周边放慢。', 'Tidal River 无油站，务必在 Foster 前后补满；到营地后不再追求远处景点。', 'Wilsons Promontory National Park 南端；住 Tidal River（优先）或 Yanakie。', 'Foster 小镇午餐与补给；营地自备/简餐。', '河口、海滩与黄昏野生动物', '入口工程公告覆盖此日期，可能有临时交通管制；出发前复核。', 'Tidal_River,_Victoria', 'https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park')
-  ]},
-  { date: '2026-09-28', label: 'D5', dateText: '09.28 · 周一', title: '威尔逊岬全天', route: '工作日看海滩与雨林 · 傍晚 Big Drift · 住原处不换', places: [
-    place('squeaky', '吱吱海滩、威士忌湾与野餐湾', 'Squeaky Beach', '白色石英砂在脚下会发出声响，三处海湾可按停车情况取舍；不需要机械地全打卡。', '尽量早于 10:00 抵达热门点；车位满时改从 Tidal River 步行。海况复杂，不把这里当作游泳任务。', 'Wilsons Promontory 西侧，邻近 Tidal River。', '带水与野餐；离开时带走全部垃圾。', '石英白沙、花岗岩与海湾步道', 'Parks Victoria 提醒该海滩无救生员巡逻且常有离岸流。', 'Squeaky_Beach', 'https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/things-to-do/squeaky-beach'),
-    place('lilly', '莉莉皮里谷与野生动物漫步', 'Wilsons Promontory National Park', '在海岸之外走进温带雨林与草地，是把“看海”调成“看生态”的一段。', 'Lilly Pilly Gully 与 Wildlife Walk 可按天气各选短线；沿标识步道，不追逐动物。', 'Tidal River 周边；以当日官方步道开放信息为准。', '营地或自备补给，减少往返驾驶。', '蕨类雨林、袋鼠、袋熊等原生动物', '步道、桥梁和湿滑情况以现场公告为准。', 'Wilsons_Promontory_National_Park', 'https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/things-to-do/day-walks'),
-    place('bigdrift', '大沙丘日落月升', 'Big Drift', '巨型风积沙丘是当天的压轴；重点是日落，而不是等到完全黑暗后的“月升打卡”。', '带头灯/手机照明、防风层和水；以能清楚识别返程路为边界，不独自摸黑下沙坡。', 'Big Drift carpark 起步；返程回 Tidal River。', '提前备好晚餐或零食，避免下山后再找食物。', '风积沙丘与辽阔天际线', '这是本行程最关键夜行段；强风或降雨时直接放弃（预计）。', 'Wilsons_Promontory_National_Park', 'https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park')
-  ]},
-  { date: '2026-09-29', label: 'D6', dateText: '09.29 · 周二', title: '威尔逊岬到菲利普岛', route: '上午轻徒步 · 下午约 2.5—3 小时车程 · 日落与企鹅归巢', places: [
-    place('tonguepoint', 'Mount Bishop / Darby 至 Tongue Point', 'Tongue Point (Victoria)', '上午只做轻量徒步：Mount Bishop 或 Darby 至 Tongue Point 二选一，留足下午转场余量。', '根据前一日体力、天气和步道公告选择；不在临海危险岩面冒险。', 'Wilsons Promontory 北部步道；从相应停车场起步。', '出发前在 Tidal River / Foster 补给，午餐不拖长。', '风蚀海岬、灌木与远眺', '原计划为二选一；不是必须完成两条。', 'Tongue_Point_(Victoria)', 'https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/things-to-do/day-walks'),
-    place('nobbies', '诺比斯中心与海豹岩', 'The Nobbies, Victoria', '傍晚先到诺比斯木栈道看海豹岩、海鸟与南岸落日，再前往企鹅归巢。', '白天先走木栈道；日落前确认道路与停车安排。全程留意黄昏出没的野生动物。', 'Phillip Island 西南端，靠近 Summerland。', '企鹅中心附近餐饮选择有限；建议在 Cowes 或途中解决正餐。', '海豹岩、海鸟与海蚀海岸', '当前运营方公告称 Nobbies 木栈道与停车场开放、中心咖啡厅等可能关闭；以出发前公告为准。', 'The_Nobbies,_Victoria', 'https://www.penguins.org.au/visit/important-information/'),
-    place('penguin', '小蓝企鹅归巢', 'Penguin Parade', '小蓝企鹅在日落后从海上回到洞穴，是岛上最需要按预约执行的体验。', '提前订票；按票面时间到达，带防风保暖层。日落后禁止拍照或录像，散场后只回岛上住宿。', '1019 Ventnor Rd, Summerlands, VIC 3922。', '观演前在 Cowes / Newhaven 用晚餐；场内以轻食为主。', '世界最大的小蓝企鹅群落之一', '官方建议一般观景至少提早约 1 小时到场；到达时间以票面为准。', 'Penguin_Parade', 'https://www.penguins.org.au/public/attractions/penguin-parade/')
-  ]},
-  { date: '2026-09-30', label: 'D7', dateText: '09.30 · 周三', title: '菲利普岛到莫宁顿', route: 'Cape Woolamai / Churchill Island 二选一 · 午后温泉 · 住半岛南端', places: [
-    place('woolamai', '伍拉迈角 / 丘吉尔岛', 'Cape Woolamai', '上午在花岗岩海岸徒步与农场岛屿体验间二选一，让离岛时间保持弹性。', '想走海岸选 Cape Woolamai 短线；风雨或希望轻松时改 Churchill Island。', 'Phillip Island 东南端 / Churchill Island。', 'Cowes 早餐、午餐后再离岛；避免赶在车流高峰。', '花岗岩海岸或历史农场', '此处按原计划二选一；不建议同时硬塞。', 'Cape_Woolamai', 'https://www.penguins.org.au/visit/'),
-    place('hot-springs', '半岛温泉', 'Peninsula Hot Springs', '从菲利普岛驶往莫宁顿半岛后，用地热浴场把节奏完全降下来。', '提前预约指定时段；带泳衣、拖鞋和保暖衣物，按场馆规则安排入场。', 'Springs Lane, Fingal；住 Sorrento / Rye / Fingal。', '温泉场馆餐饮或 Rye、Sorrento 晚餐；以预约时段为先。', '天然地热温泉与户外泡池', '浴场与护理服务均可能需要预约；票务与开放时间须复核。', 'Peninsula_Hot_Springs', 'https://www.peninsulahotsprings.com/')
-  ]},
-  { date: '2026-10-01', label: 'D8', dateText: '10.01 · 周四', title: '轮渡进入大洋路', route: 'Point Nepean / Sorrento · 车辆轮渡 · Surf Coast · 住 Lorne', places: [
-    place('pointnepean', '尼皮恩角与索伦托', 'Point Nepean National Park', '上午在军事遗址海岬或索伦托小镇间取舍，核心是不要错过带车轮渡的值船时间。', '先锁定轮渡班次，再倒推尼皮恩角停留；过早消耗体力没有必要。', 'Mornington Peninsula 南端；轮渡码头在 Sorrento。', 'Sorrento 镇咖啡与简餐，预留上船时间。', '军事遗址、海峡与海湾风景', '景区开放与车辆轮渡班次以当日运营信息为准。', 'Point_Nepean_National_Park', 'https://www.parks.vic.gov.au/places-to-see/parks/point-nepean-national-park'),
-    place('ferry', '索伦托—昆斯克利夫车辆轮渡', 'Searoad Ferries', '跨越 Port Phillip 的约 40 分钟水路，将半岛直接接入贝拉林半岛，是这条环线的关键连接。', '旺季带车优先订位；运营方要求车辆一般在开船前 45 分钟完成值船，按订单为准。', 'Sorrento Pier ↔ Queenscliff Harbour。', '码头周边咖啡；车上仅作短暂休整。', '带车横渡 Port Phillip Bay', '班次、值船及天气影响会变化；以 Searoad 当日确认邮件和官网为准。', 'Searoad_Ferries', 'https://www.searoad.com.au/'),
-    place('surfcoast', '巴旺黑兹、贝尔斯海滩与托基', 'Bells Beach, Victoria', '离船后沿 Surf Coast 向西，把海滨小镇与冲浪海岸当作串联停靠；只选 1—2 个充分停留。', '先看天气与海况；海滩观景不等于适合下水。下午仍需留给灯塔、拱门和 Lorne。', 'Queenscliff → Barwon Heads → Bells Beach → Torquay。', 'Torquay 或 Barwon Heads 解决午后简餐。', '冲浪海岸与礁岩浪线', '停靠点多，需主动取舍；不赶每一站。', 'Bells_Beach,_Victoria', 'https://www.visitvictoria.com/regions/great-ocean-road'),
-    place('splitpoint', '小红帽灯塔、纪念拱门与洛恩', 'Split Point Lighthouse', '从 Aireys Inlet 的灯塔，到大洋路纪念拱门，再到 Lorne 住宿，是大洋路东段的开场。', '先确认灯塔登塔开放；纪念拱门短停拍照，天黑前到 Lorne。', 'Aireys Inlet → Eastern View → Lorne。', 'Lorne 海滨晚餐；订不到房则按原计划改住 Torquay / Aireys Inlet。', '白色灯塔与大洋路入口标志', '登塔时段和房源需以预订页面为准。', 'Split_Point_Lighthouse', 'https://www.greatoceanroadauthority.vic.gov.au/')
-  ]},
-  { date: '2026-10-02', label: 'D9', dateText: '10.02 · 周五', title: '洛恩到奥特威雨林', route: '瀑布 · 考拉观察 · 巨型蕨类雨林 · 住 Apollo Bay', places: [
-    place('erskine', '厄斯金瀑布', 'Erskine Falls', '从 Lorne 进入雨林的第一段瀑布停留，适合早上体力充足时走下观景台。', '台阶湿滑，穿防滑鞋；暴雨后按封闭信息调整。', 'Erskine Falls Access Rd, Lorne hinterland。', 'Lorne 先补水和简单早餐。', '雨林瀑布与蕨类谷地', '降雨后路况与步道封闭可能变化（预计）。', 'Erskine_Falls', 'https://www.parks.vic.gov.au/places-to-see/parks/great-otway-national-park'),
-    place('kennett', '肯尼特河看考拉', 'Kennett River', '在大洋路旁的桉树间观察野生考拉；这不是动物园，看到与否都取决于自然。', '抬头看树冠、保持距离，不投喂、不追逐；路边停车时尤其注意来车。', 'Kennett River, Great Ocean Road。', '沿路咖啡点作为补给，别把此处当作正餐目的地。', '野生考拉与桉树林', '野生动物出现具有随机性（预计）。', 'Kennett_River', 'https://www.visitvictoria.com/regions/great-ocean-road'),
-    place('maits', 'Maits Rest 雨林与奥特威海角（可选）', "Maits'_Rest", 'Maits Rest 的短环线浓缩了巨型蕨类雨林；天气好、道路开放时再加 Cape Otway Lightstation。', 'Maits Rest 作为当天必走短线；Cape Otway 为可选，不为灯塔牺牲到 Apollo Bay 的入住节奏。', 'Great Otway National Park；Cape Otway 需绕行。', 'Apollo Bay 晚餐；路上只作轻补给。', '温带雨林与澳洲古老灯塔', 'Cape Otway 开放、收费与道路条件须出发前复核。', "Maits'_Rest", 'https://www.parks.vic.gov.au/places-to-see/parks/great-otway-national-park')
-  ]},
-  { date: '2026-10-03', label: 'D10', dateText: '10.03 · 周六', title: '十二门徒与坎贝尔港', route: '早出发避正午 · Gibson Steps · Twelve Apostles · Loch Ard Gorge', places: [
-    place('gibson', '吉布森台阶', 'Gibson Steps', '吉布森台阶让人从近海平面感受石灰岩海岸；海况合适才下到沙滩。', '先看潮汐、风浪与现场封闭标识；不翻越护栏，不在浪线附近逗留。', 'Great Ocean Road，距十二门徒观景区不远。', 'Apollo Bay 出发前吃饱，沿线餐饮作为补给而非主计划。', '近距离海蚀崖与海滩', '能否下行完全取决于海况与现场安全公告。', 'Gibson_Steps', 'https://www.parks.vic.gov.au/places-to-see/parks/port-campbell-national-park'),
-    place('apostles', '十二门徒', 'Twelve Apostles (Victoria)', '大洋路标志性的石灰岩海柱群。周六会更拥挤，早到的价值在于光线、停车和不被正午人流打断。', '从官方观景步道观看；强风时双手控门、远离悬崖边，不为照片后退。', 'Port Campbell National Park, Victoria。', '午餐放在 Port Campbell；不在停车区赶时间。', '南大洋海蚀石灰岩柱', '免费开放但停车位与人流会波动；早到避开正午。', 'Twelve_Apostles_(Victoria)', 'https://www.parks.vic.gov.au/places-to-see/parks/port-campbell-national-park'),
-    place('lochard', '洛阿德峡谷', 'Loch Ard Gorge', '以 1878 年沉船命名的峡谷海湾，是十二门徒后更适合细走的观景步道。', '按指示在观景区行走；不下未开放通道，注意强风与浪涌。', 'Port Campbell National Park，近坎贝尔港。', 'Port Campbell 小镇晚餐与住宿。', '峡谷、海湾与沉船故事', '步道开放、海况和日落时间以当天现场为准。', 'Loch_Ard_Gorge', 'https://www.parks.vic.gov.au/places-to-see/parks/port-campbell-national-park')
-  ]},
-  { date: '2026-10-04', label: 'D11', dateText: '10.04 · 周日', title: '西段海岸回墨尔本', route: 'London Bridge · The Grotto · Bay of Martyrs / Islands · 内陆返城', places: [
-    place('londonbridge', '伦敦桥与石窟', 'London Bridge (Victoria)', '上午从坎贝尔港向西看海拱与石窟；海岸景点密度很高，留下缓冲给内陆长途返城。', '每处短停观景；留意围栏、强风和停车场时间，别在上午耗尽。', 'Port Campbell 西侧 Great Ocean Road 沿线。', 'Port Campbell 出发前补给；内陆途中只做必要休息。', '坍塌海拱与天然岩洞', '海浪、天气与观景步道状况以现场公告为准。', 'London_Bridge_(Victoria)', 'https://www.parks.vic.gov.au/places-to-see/parks/bay-of-islands-coastal-park'),
-    place('bayislands', '殉难者湾与群岛湾', 'Bay of Islands Coastal Park', '将行程最后的海岸风景留给 Bay of Martyrs 与 Bay of Islands，再从内陆回到墨尔本。', '不要贪多：选择 1—2 个观景点后就启程；当天约 4—5 小时内陆车程须留余量。', 'Peterborough 以西海岸，后转内陆往 Melbourne。', '沿途服务区补给；抵达 Melbourne 再安排正餐。', '开阔海岸岩柱与长线海景', '当日凌晨夏令时开始，时钟拨快 1 小时；车载设备可能不会自动更新。', 'Bay_of_Islands_Coastal_Park', 'https://www.parks.vic.gov.au/places-to-see/parks/bay-of-islands-coastal-park')
-  ]},
-  { date: '2026-10-05', label: 'D12', dateText: '10.05 · 周一', title: '开飞机体验与收尾', route: 'Moorabbin 体验飞行 · 市区人文或天气缓冲 · 从容还车', places: [
-    place('learn-to-fly', 'Moorabbin 开飞机体验', 'Moorabbin Airport', '这是一段有仪表飞行员陪同的体验活动：报到、安全影片后，由游客在副驾驶位实际操控飞机。', '按运营方预约提前到机场；带照片证件，天气、体重限制和实际飞行时间以订单条款为准。', 'Moorabbin Airport，市区东南约 30 分钟（预计）。', '飞行后回市区午餐；不要把飞行前后安排得过紧。', '在教员陪同下的通航体验', '30/60 分钟等产品、天气取消与资格要求须以预约运营方为准。', 'Moorabbin_Airport', 'https://www.visitvictoria.com/'),
-    place('ngv-library', 'NGV / 州立图书馆（天气备选）', 'National Gallery of Victoria', '午后在人文场馆收尾，或把它作为全线因天气删减项目的缓冲。优先级取决于前段有没有遗憾。', '只选一个重点看；确认临展预约与闭馆时间，再从容还车、整理行李。', 'NGV：St Kilda Rd；州立图书馆：328 Swanston St。', 'Southbank 或 CBD 的最后一顿晚餐。', '维州艺术收藏与历史阅览空间', '展览、预约和开馆时间可能调整（预计）。', 'National_Gallery_of_Victoria', 'https://www.ngv.vic.gov.au/')
-  ]},
-  { date: '2026-10-06', label: 'END', dateText: '10.06 · 周二', title: '返程日', route: '不安排行程 · 提前到机场 · 留给不可控因素', places: [
-    place('departure', '返程与最后检查', 'Melbourne Airport', '返程日不安排行程。若航班很早，前一日就应把景点收尾，并优先考虑机场附近住宿。', '确认航站楼、值机时间、租车还车地点与行李；把护照、机票、国际驾照等放在同一随身包。', 'Melbourne Airport / Tullamarine。', '按航班时间在机场或住宿附近解决早餐。', '留白本身就是行程的一部分', '航班、还车与交通时间以实际订单为准。', 'Melbourne_Airport', 'https://www.melbourneairport.com.au/')
-  ]}
-];
-
-function place(id, name, en, intro, guide, location, food, feature, caution, wiki, source) {
-  const [role, category, highlight] = spotMeta[id] || ['main', '景点', '行程亮点'];
-  return { id, name, en, displayEn: englishNames[id] || en, intro, guide, location, food, feature, caution, wiki, source, role, category, highlight, image: `assets/${id}.jpg`, booking: bookings[id] || null };
-}
-
-const routeNodes = [
-  { day: 0, name: '墨尔本', lat: -37.8136, lng: 144.9631 },
-  { day: 1, name: '墨尔本市区', lat: -37.8222, lng: 144.9768 },
-  { day: 2, name: '希尔斯维尔', lat: -37.6530, lng: 145.5170 },
-  { day: 3, name: '潮汐河', lat: -39.0308, lng: 146.3235 },
-  { day: 4, name: '吱吱海滩', lat: -39.0265, lng: 146.3065 },
-  { day: 4, name: '大沙丘', lat: -38.9940, lng: 146.2790 },
-  { day: 5, name: '菲利普岛', lat: -38.5115, lng: 145.1520 },
-  { day: 6, name: '伍拉迈角', lat: -38.5465, lng: 145.3340 },
-  { day: 6, name: '半岛温泉', lat: -38.3725, lng: 144.8780 },
-  { day: 7, name: '索伦托', lat: -38.3394, lng: 144.7412 },
-  { day: 7, name: '昆斯克利夫', lat: -38.2680, lng: 144.6620 },
-  { day: 7, name: '托基', lat: -38.3305, lng: 144.3260 },
-  { day: 7, name: '洛恩', lat: -38.5400, lng: 143.9750 },
-  { day: 8, name: '肯尼特河', lat: -38.6660, lng: 143.9190 },
-  { day: 8, name: '阿波罗湾', lat: -38.7590, lng: 143.6710 },
-  { day: 9, name: '十二门徒', lat: -38.6650, lng: 143.1050 },
-  { day: 9, name: '坎贝尔港', lat: -38.6180, lng: 142.9990 },
-  { day: 10, name: '群岛湾', lat: -38.6670, lng: 142.8850 },
-  { day: 11, name: 'Moorabbin', lat: -37.9750, lng: 145.1020 },
-  { day: 12, name: '墨尔本机场', lat: -37.6690, lng: 144.8410 }
-];
-
-const nav = document.querySelector('#itinerary-nav');
-const placeHeading = document.querySelector('#place-heading');
-const placeCards = document.querySelector('#place-cards');
-const dayPagination = document.querySelector('#day-pagination');
-const menuButton = document.querySelector('#menu-button');
-const sidebar = document.querySelector('.sidebar');
-let activeDayIndex = 0;
-let map;
-let mapMarkers = [];
-const imageObserver = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
-  entries.filter(entry => entry.isIntersecting).forEach(entry => {
-    imageObserver.unobserve(entry.target);
-    loadWikimediaImage(entry.target);
-  });
-}, { rootMargin: '240px 0px' }) : null;
-
-function buildNav() {
-  nav.innerHTML = days.map(day => `
-    <section class="day-nav">
-      <button class="day-nav-button" type="button" data-day="${days.indexOf(day)}">
-        <span class="day-number">${day.label}</span><span><strong>${day.title}</strong><small>${day.dateText}</small></span>
-      </button>
-      ${day.places.map(item => `<button class="spot-nav" type="button" data-day="${days.indexOf(day)}" data-spot="${item.id}">${item.name}</button>`).join('')}
-    </section>`).join('');
-  nav.addEventListener('click', event => {
-    const button = event.target.closest('[data-day]');
-    if (!button) return;
-    renderDay(Number(button.dataset.day), button.dataset.spot || null, true);
-    sidebar.classList.remove('is-open');
-    menuButton?.setAttribute('aria-expanded', 'false');
-  });
-}
-
-function imageCard(item, index) {
-  const isOptional = item.role === 'optional';
-  const roleLabel = isOptional ? '备选 · 时间充足再去' : '主线 · 优先保留';
-  return `<article class="place-card ${isOptional ? 'is-optional' : 'is-main'}" id="spot-${item.id}">
-    <div class="place-photo"><img data-wiki="${encodeURIComponent(item.wiki)}" alt="${escapeHtml(item.name)} 的实景图" loading="${index === 0 ? 'eager' : 'lazy'}"><div class="image-placeholder">${escapeHtml(item.name)}<small>图片加载中…</small></div><span class="photo-note">实景图：<a href="https://en.wikipedia.org/wiki/${encodeURIComponent(item.wiki)}" target="_blank" rel="noopener">Wikimedia Commons / Wikipedia ↗</a></span></div>
-    <div class="place-info">
-      <span class="route-badge ${isOptional ? 'badge-optional' : 'badge-main'}">${roleLabel}</span><span class="english">${item.displayEn}</span><h3>${item.name}（${item.displayEn}，${item.category}，${item.highlight}）</h3><p class="place-intro">${item.intro}</p>
-      <dl class="facts">
-        <div class="fact"><dt>基础导览</dt><dd>${item.guide}</dd></div>
-        <div class="fact"><dt>地理位置</dt><dd>${item.location}</dd></div>
-        <div class="fact"><dt>可以尝试</dt><dd>${item.food}</dd></div>
-        <div class="fact"><dt>特色</dt><dd>${item.feature}</dd></div>
-        <div class="fact"><dt>提醒</dt><dd>${item.caution}</dd></div>
-        ${item.booking ? `<div class="fact"><dt>官方预约</dt><dd><a href="${item.booking.url}" target="_blank" rel="noopener">${item.booking.title} · ${item.booking.note} ↗</a></dd></div>` : ''}
-      </dl>
-      <div class="place-links">${item.booking ? `<a href="${item.booking.url}" target="_blank" rel="noopener">前往官方预约 ↗</a>` : ''}<a href="${item.source}" target="_blank" rel="noopener">官方 / 资料来源 ↗</a><a href="https://en.wikipedia.org/wiki/${encodeURIComponent(item.wiki)}" target="_blank" rel="noopener">图片出处 ↗</a></div>
-    </div>
-  </article>`;
-}
-
-function renderDay(index, spotId = null, moveFocus = false) {
-  activeDayIndex = Math.max(0, Math.min(index, days.length - 1));
-  const day = days[activeDayIndex];
-  document.querySelectorAll('.day-nav-button').forEach(button => button.classList.toggle('active-day', Number(button.dataset.day) === activeDayIndex));
-  document.querySelectorAll('.spot-nav').forEach(button => button.classList.toggle('active', Number(button.dataset.day) === activeDayIndex));
-  placeHeading.innerHTML = `<div class="date-lockup"><span>${day.label}</span><strong>${day.dateText.split(' · ')[0].replace('.', '<i>/</i>')}</strong><small>${day.dateText.split(' · ')[1]}</small></div><div><span class="day-kicker">DAY PLAN · ${day.date}</span><h2>${day.title}</h2></div><p class="route-context"><b>${dayPace[activeDayIndex]}</b>${day.route}<span class="stay-info">${stayInfo[activeDayIndex]}</span></p>`;
-  placeCards.innerHTML = day.places.map(imageCard).join('');
-  placeCards.querySelectorAll('img[data-wiki]').forEach(image => imageObserver ? imageObserver.observe(image) : loadWikimediaImage(image));
-  const previous = days[activeDayIndex - 1];
-  const next = days[activeDayIndex + 1];
-  dayPagination.innerHTML = `${previous ? `<button type="button" data-day="${activeDayIndex - 1}"><small>← 前一日</small><strong>${previous.label} · ${previous.title}</strong></button>` : '<span></span>'}<span class="pagination-count">${String(activeDayIndex + 1).padStart(2, '0')} / ${String(days.length).padStart(2, '0')}</span>${next ? `<button type="button" data-day="${activeDayIndex + 1}"><small>后一日 →</small><strong>${next.label} · ${next.title}</strong></button>` : '<span></span>'}`;
-  dayPagination.querySelectorAll('button').forEach(button => button.addEventListener('click', () => renderDay(Number(button.dataset.day), null, true)));
-  localStorage.setItem('victoria-loop-current-day', String(activeDayIndex));
-  updateMap();
-  if (spotId) requestAnimationFrame(() => document.querySelector(`#spot-${spotId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
-  else if (moveFocus) document.querySelector('#place-content').scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function initMap() {
-  if (!window.L) return;
-  map = L.map('route-map', { zoomControl: false, scrollWheelZoom: false, attributionControl: true });
-  L.control.zoom({ position: 'bottomright' }).addTo(map);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19, subdomains: 'abcd', attribution: '&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
-  L.polyline(routeNodes.map(node => [node.lat, node.lng]), { color: '#d47856', weight: 4, opacity: .9, lineJoin: 'round' }).addTo(map);
-  map.fitBounds(L.latLngBounds(routeNodes.map(node => [node.lat, node.lng])).pad(.12));
-  updateMap();
-}
-
-function updateMap() {
-  if (!map) return;
-  mapMarkers.forEach(marker => marker.remove());
-  mapMarkers = routeNodes.map(node => {
-    const active = node.day === activeDayIndex;
-    const icon = L.divIcon({ className: 'route-marker-wrap', html: `<button class="route-marker ${active ? 'route-marker-active' : ''}" aria-label="${node.name}"><span>${node.name}</span></button>`, iconSize: active ? [138, 38] : [105, 28], iconAnchor: active ? [15, 19] : [10, 14] });
-    const marker = L.marker([node.lat, node.lng], { icon, keyboard: false }).addTo(map);
-    marker.on('click', () => renderDay(node.day, null, true));
-    return marker;
-  });
-}
-
-async function loadWikimediaImage(image) {
-  if (image.dataset.fallbackAttempted) return;
-  image.dataset.fallbackAttempted = 'true';
-  try {
-    const title = decodeURIComponent(image.dataset.wiki);
-    const endpoint = `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&piprop=thumbnail&pithumbsize=1400&titles=${encodeURIComponent(title)}`;
-    const response = await fetch(endpoint);
-    if (!response.ok) throw new Error('image lookup failed');
-    const payload = await response.json();
-    const page = Object.values(payload.query?.pages || {})[0];
-    if (!page?.thumbnail?.source) throw new Error('no article image');
-    image.src = page.thumbnail.source;
-    image.onerror = () => image.remove();
-  } catch {
-    image.remove();
-  }
-}
-
-function escapeHtml(value) { return value.replace(/[&<>'"]/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[char])); }
-
-function initialDay() {
-  const today = new Date().toLocaleDateString('en-CA');
-  const dateIndex = days.findIndex(day => day.date === today);
-  const saved = Number(localStorage.getItem('victoria-loop-current-day'));
-  return dateIndex >= 0 ? dateIndex : (Number.isInteger(saved) && saved >= 0 && saved < days.length ? saved : 0);
-}
-
-document.querySelector('#show-alerts').addEventListener('click', () => document.querySelector('#alerts').scrollIntoView({ behavior: 'smooth' }));
-document.querySelector('#booking-hub').innerHTML = `<h3>预约与核验</h3><p>以下均为运营方或场馆官方入口；价格、余位、取消规则和最后到场时间以实际订单为准。</p><div class="booking-list">${Object.values(bookings).map((entry, index) => `<a href="${entry.url}" target="_blank" rel="noopener"><span>${String(index + 1).padStart(2, '0')} · ${entry.label}</span><strong>${entry.title}</strong><small>${entry.note} ↗</small></a>`).join('')}</div>`;
-menuButton?.addEventListener('click', () => { const open = sidebar.classList.toggle('is-open'); menuButton.setAttribute('aria-expanded', String(open)); });
-buildNav();
-initMap();
-renderDay(initialDay());
+const routeNodes=[{day:0,name:'墨尔本',lat:-37.8136,lng:144.9631},{day:1,name:'墨尔本市区',lat:-37.8222,lng:144.9768},{day:2,name:'墨尔本留白',lat:-37.805,lng:144.971},{day:3,name:'希尔斯维尔',lat:-37.653,lng:145.517},{day:4,name:'潮汐河',lat:-39.0308,lng:146.3235},{day:5,name:'吱吱海滩',lat:-39.0265,lng:146.3065},{day:5,name:'菲利普岛',lat:-38.5115,lng:145.152},{day:6,name:'半岛温泉',lat:-38.3725,lng:144.878},{day:6,name:'墨尔本',lat:-37.8136,lng:144.9631},{day:7,name:'洛恩',lat:-38.54,lng:143.975},{day:8,name:'肯尼特河',lat:-38.666,lng:143.919},{day:8,name:'奥特维海角',lat:-38.8567,lng:143.5145},{day:8,name:'阿波罗湾',lat:-38.759,lng:143.671},{day:9,name:'十二门徒',lat:-38.665,lng:143.105},{day:9,name:'坎贝尔港',lat:-38.618,lng:142.999},{day:10,name:'群岛湾',lat:-38.667,lng:142.885},{day:10,name:'墨尔本',lat:-37.8136,lng:144.9631},{day:11,name:'Moorabbin',lat:-37.975,lng:145.102},{day:12,name:'墨尔本机场',lat:-37.669,lng:144.841}];
+const nav=document.querySelector('#itinerary-nav'),heading=document.querySelector('#place-heading'),cards=document.querySelector('#place-cards'),pager=document.querySelector('#day-pagination'),menuButton=document.querySelector('#menu-button'),sidebar=document.querySelector('.sidebar');let active=0,map,markers=[];
+const observer='IntersectionObserver'in window?new IntersectionObserver(es=>es.filter(e=>e.isIntersecting).forEach(e=>{observer.unobserve(e.target);loadImage(e.target)}),{rootMargin:'240px 0px'}):null;
+function buildNav(){nav.innerHTML=days.map((d,i)=>`<section class="day-nav"><button class="day-nav-button" type="button" data-day="${i}"><span class="day-number">${d.label}</span><span><strong>${d.title}</strong><small>${d.dateText}</small></span></button>${d.places.map(x=>`<button class="spot-nav spot-nav-${x.role}" type="button" data-day="${i}" data-spot="${x.id}">${x.role==='optional'?'○ ':''}${x.name}</button>`).join('')}</section>`).join('');nav.addEventListener('click',e=>{const b=e.target.closest('[data-day]');if(!b)return;render(Number(b.dataset.day),b.dataset.spot||null,true);sidebar.classList.remove('is-open');menuButton?.setAttribute('aria-expanded','false')})}
+function card(x,i){const optional=x.role==='optional',badge=optional?'备选 · 时间充足再去':'主线 · 优先保留',src=x.image?`src="${x.image}"`:'';return `<article class="place-card ${optional?'is-optional':'is-main'}" id="spot-${x.id}"><div class="place-photo"><img ${src} data-wiki="${encodeURIComponent(x.wiki)}" alt="${esc(x.name)} 的实景图" loading="${i===0?'eager':'lazy'}"><div class="image-placeholder">${esc(x.name)}<small>正在载入可核验图片…</small></div><span class="photo-note">实景图：<a href="https://en.wikipedia.org/wiki/${encodeURIComponent(x.wiki)}" target="_blank" rel="noopener">Wikimedia Commons / Wikipedia ↗</a></span></div><div class="place-info"><span class="route-badge ${optional?'badge-optional':'badge-main'}">${badge}</span><span class="english">${x.displayEn}</span><h3>${x.name}（${x.displayEn}，${x.category}，${x.highlight}）</h3><p class="place-intro">${x.intro}</p><dl class="facts"><div class="fact"><dt>基础导览</dt><dd>${x.guide}</dd></div><div class="fact"><dt>地理位置</dt><dd>${x.location}</dd></div><div class="fact"><dt>可以尝试</dt><dd>${x.food}</dd></div><div class="fact"><dt>特色</dt><dd>${x.feature}</dd></div><div class="fact"><dt>提醒</dt><dd>${x.caution}</dd></div>${x.booking?`<div class="fact"><dt>官方预约</dt><dd><a href="${x.booking.url}" target="_blank" rel="noopener">${x.booking.title} · ${x.booking.note} ↗</a></dd></div>`:''}</dl><div class="place-links">${x.booking?`<a href="${x.booking.url}" target="_blank" rel="noopener">前往官方预约 ↗</a>`:''}<a href="${x.source}" target="_blank" rel="noopener">官方 / 资料来源 ↗</a><a href="https://en.wikipedia.org/wiki/${encodeURIComponent(x.wiki)}" target="_blank" rel="noopener">图片出处 ↗</a></div></div></article>`}
+function render(i,spot=null,move=false){active=Math.max(0,Math.min(i,days.length-1));const d=days[active];document.querySelectorAll('.day-nav-button').forEach(b=>b.classList.toggle('active-day',Number(b.dataset.day)===active));document.querySelectorAll('.spot-nav').forEach(b=>b.classList.toggle('active',Number(b.dataset.day)===active));heading.innerHTML=`<div class="date-lockup"><span>${d.label}</span><strong>${d.dateText.split(' · ')[0].replace('.', '<i>/</i>')}</strong><small>${d.dateText.split(' · ')[1]}</small></div><div><span class="day-kicker">DAY PLAN · ${d.date}</span><h2>${d.title}</h2></div><p class="route-context"><b>${pace[active]}</b>${d.route}<span class="stay-info">${stay[active]}</span></p>`;cards.innerHTML=d.places.map(card).join('');cards.querySelectorAll('img[data-wiki]').forEach(img=>{img.addEventListener('error',()=>{delete img.dataset.tried;loadImage(img)},{once:true});if(!img.getAttribute('src'))observer?observer.observe(img):loadImage(img)});const prev=days[active-1],next=days[active+1];pager.innerHTML=`${prev?`<button type="button" data-day="${active-1}"><small>← 前一日</small><strong>${prev.label} · ${prev.title}</strong></button>`:'<span></span>'}<span class="pagination-count">${String(active+1).padStart(2,'0')} / ${String(days.length).padStart(2,'0')}</span>${next?`<button type="button" data-day="${active+1}"><small>后一日 →</small><strong>${next.label} · ${next.title}</strong></button>`:'<span></span>'}`;pager.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>render(Number(b.dataset.day),null,true)));localStorage.setItem('victoria-loop-current-day',String(active));updateMap();if(spot)requestAnimationFrame(()=>document.querySelector(`#spot-${spot}`)?.scrollIntoView({behavior:'smooth',block:'start'}));else if(move)document.querySelector('#place-content').scrollIntoView({behavior:'smooth',block:'start'})}
+async function loadImage(img){if(img.dataset.tried)return;img.dataset.tried='1';const title=decodeURIComponent(img.dataset.wiki);try{const r=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);if(r.ok){const d=await r.json(),url=d.originalimage?.source||d.thumbnail?.source;if(url){img.src=url;return}}const u=`https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrsearch=${encodeURIComponent(title)}&gsrlimit=1&prop=pageimages&piprop=thumbnail&pithumbsize=1400`,q=await fetch(u),j=await q.json(),page=Object.values(j.query?.pages||{})[0];if(page?.thumbnail?.source)img.src=page.thumbnail.source}catch{}}
+function initMap(){if(!window.L)return;map=L.map('route-map',{zoomControl:false,scrollWheelZoom:false,attributionControl:true});L.control.zoom({position:'bottomright'}).addTo(map);L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd',attribution:'&copy; OpenStreetMap &copy; CARTO'}).addTo(map);L.polyline(routeNodes.map(n=>[n.lat,n.lng]),{color:'#d47856',weight:4,opacity:.9,lineJoin:'round'}).addTo(map);map.fitBounds(L.latLngBounds(routeNodes.map(n=>[n.lat,n.lng])).pad(.12));updateMap()}
+function updateMap(){if(!map)return;markers.forEach(m=>m.remove());markers=routeNodes.map(n=>{const on=n.day===active,icon=L.divIcon({className:'route-marker-wrap',html:`<button class="route-marker ${on?'route-marker-active':''}" aria-label="${n.name}"><span>${n.name}</span></button>`,iconSize:on?[138,38]:[105,28],iconAnchor:on?[15,19]:[10,14]}),m=L.marker([n.lat,n.lng],{icon,keyboard:false}).addTo(map);m.on('click',()=>render(n.day,null,true));return m})}
+function esc(v){return v.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}function initial(){const today=new Date().toLocaleDateString('en-CA'),i=days.findIndex(d=>d.date===today),saved=Number(localStorage.getItem('victoria-loop-current-day'));return i>=0?i:Number.isInteger(saved)&&saved>=0&&saved<days.length?saved:0}
+document.querySelector('#show-alerts').addEventListener('click',()=>document.querySelector('#alerts').scrollIntoView({behavior:'smooth'}));document.querySelector('#booking-hub').innerHTML=`<h3>预约与核验</h3><p>以下均为运营方或场馆官方入口；价格、余位、取消规则和最后到场时间以实际订单为准。</p><div class="booking-list">${Object.values(bookings).map((x,i)=>`<a href="${x.url}" target="_blank" rel="noopener"><span>${String(i+1).padStart(2,'0')} · ${x.label}</span><strong>${x.title}</strong><small>${x.note} ↗</small></a>`).join('')}</div>`;menuButton?.addEventListener('click',()=>{const open=sidebar.classList.toggle('is-open');menuButton.setAttribute('aria-expanded',String(open))});buildNav();initMap();render(initial());
